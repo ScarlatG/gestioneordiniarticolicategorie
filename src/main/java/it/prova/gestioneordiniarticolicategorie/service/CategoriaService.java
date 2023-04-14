@@ -15,6 +15,8 @@ public interface CategoriaService {
 
 	public void rimuovi(Long idCategoria) throws Exception;
 
+	public Categoria caricaSingoloElemento(Long idCategoria) throws Exception;
+
 	// Per injection
 	public void setCategoriaDAO(CategoriaDAO categoriaDAO);
 }

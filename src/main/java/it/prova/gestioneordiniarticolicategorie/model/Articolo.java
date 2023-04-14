@@ -1,6 +1,8 @@
 package it.prova.gestioneordiniarticolicategorie.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -11,13 +13,18 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 @Entity
-@Table(name = "Articolo")
+@Table(name = "articolo")
 public class Articolo {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
@@ -27,18 +34,28 @@ public class Articolo {
 	@Column(name = "numeroseriale")
 	private String numeroSeriale;
 	@Column(name = "prezzosingolo")
-	private double prezzoSingolo;
+	private Double prezzoSingolo;
 	@Column(name = "datainserimento")
 	private LocalDate dataInserimento;
+
+	// campi per le time info del record
+	@CreationTimestamp
+	@Column(name = "createdatetime")
+	private LocalDateTime createDateTime;
+	@UpdateTimestamp
+	@Column(name = "updatedatetime")
+	private LocalDateTime updateDateTime;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "ordine_id", nullable = false)
 	private Ordine ordine;
-	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "categorie")
-	private Set<Categoria> categorie = new HashSet<Categoria>();
 
-	// Costruttore vuoto
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(name = "articolo_categoria", joinColumns = @JoinColumn(name = "articolo_id", referencedColumnName = "ID"), inverseJoinColumns = @JoinColumn(name = "categoria_id", referencedColumnName = "ID"))
+	private Set<Categoria> categorie = new HashSet<>();
+
 	public Articolo() {
-
+		super();
 	}
 
 	public Articolo(String descrizione, String numeroSeriale) {
@@ -47,40 +64,19 @@ public class Articolo {
 		this.numeroSeriale = numeroSeriale;
 	}
 
-	public Articolo(String descrizione, String numeroSeriale, double prezzoSingolo) {
+	public Articolo(String descrizione, String numeroSeriale, Double prezzoSingolo) {
 		super();
 		this.descrizione = descrizione;
 		this.numeroSeriale = numeroSeriale;
 		this.prezzoSingolo = prezzoSingolo;
 	}
 
-	public Articolo(String descrizione, String numeroSeriale, double prezzoSingolo, LocalDate dataInserimento) {
+	public Articolo(String descrizione, String numeroSeriale, Double prezzoSingolo, LocalDate dataInserimento) {
 		super();
 		this.descrizione = descrizione;
 		this.numeroSeriale = numeroSeriale;
 		this.prezzoSingolo = prezzoSingolo;
 		this.dataInserimento = dataInserimento;
-	}
-
-	public Articolo(String descrizione, String numeroSeriale, double prezzoSingolo, LocalDate dataInserimento,
-			Ordine ordine) {
-		super();
-		this.descrizione = descrizione;
-		this.numeroSeriale = numeroSeriale;
-		this.prezzoSingolo = prezzoSingolo;
-		this.dataInserimento = dataInserimento;
-		this.ordine = ordine;
-	}
-
-	public Articolo(String descrizione, String numeroSeriale, double prezzoSingolo, LocalDate dataInserimento,
-			Ordine ordine, Set<Categoria> categorie) {
-		super();
-		this.descrizione = descrizione;
-		this.numeroSeriale = numeroSeriale;
-		this.prezzoSingolo = prezzoSingolo;
-		this.dataInserimento = dataInserimento;
-		this.ordine = ordine;
-		this.categorie = categorie;
 	}
 
 	public Long getId() {
@@ -107,11 +103,11 @@ public class Articolo {
 		this.numeroSeriale = numeroSeriale;
 	}
 
-	public double getPrezzoSingolo() {
+	public Double getPrezzoSingolo() {
 		return prezzoSingolo;
 	}
 
-	public void setPrezzoSingolo(double prezzoSingolo) {
+	public void setPrezzoSingolo(Double prezzoSingolo) {
 		this.prezzoSingolo = prezzoSingolo;
 	}
 
@@ -121,6 +117,22 @@ public class Articolo {
 
 	public void setDataInserimento(LocalDate dataInserimento) {
 		this.dataInserimento = dataInserimento;
+	}
+
+	public LocalDateTime getCreateDateTime() {
+		return createDateTime;
+	}
+
+	public void setCreateDateTime(LocalDateTime createDateTime) {
+		this.createDateTime = createDateTime;
+	}
+
+	public LocalDateTime getUpdateDateTime() {
+		return updateDateTime;
+	}
+
+	public void setUpdateDateTime(LocalDateTime updateDateTime) {
+		this.updateDateTime = updateDateTime;
 	}
 
 	public Ordine getOrdine() {
@@ -139,11 +151,24 @@ public class Articolo {
 		this.categorie = categorie;
 	}
 
+	public void addToCategorie(Categoria categoriaInstance) {
+		this.categorie.add(categoriaInstance);
+		categoriaInstance.getArticoli().add(this);
+	}
+
+	public void removeFromCategorie(Categoria categoriaInstance) {
+		this.categorie.remove(categoriaInstance);
+		categoriaInstance.getArticoli().remove(this);
+	}
+
 	@Override
 	public String toString() {
-		return "Articolo [id=" + id + ", descrizione=" + descrizione + ", numeroSeriale=" + numeroSeriale
-				+ ", prezzoSingolo=" + prezzoSingolo + ", dataInserimento=" + dataInserimento + ", ordine=" + ordine
-				+ ", categorie=" + categorie + "]";
+		String dataInserimentoString = dataInserimento != null
+				? DateTimeFormatter.ofPattern("dd/MM/yyyy").format(dataInserimento)
+				: " N.D.";
+
+		return "Articolo [id = " + id + ", descrizione = " + descrizione + ", numeroSeriale = " + numeroSeriale
+				+ ", prezzoSingolo = " + prezzoSingolo + ", dataInserimento = " + dataInserimentoString + "]";
 	}
 
 }

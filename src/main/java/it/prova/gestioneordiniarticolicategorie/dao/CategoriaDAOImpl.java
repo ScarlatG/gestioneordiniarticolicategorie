@@ -12,7 +12,7 @@ public class CategoriaDAOImpl implements CategoriaDAO {
 
 	@Override
 	public List<Categoria> list() throws Exception {
-		return entityManager.createQuery("from Articolo", Categoria.class).getResultList();
+		return entityManager.createQuery("from Categoria", Categoria.class).getResultList();
 	}
 
 	@Override

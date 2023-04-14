@@ -1,5 +1,6 @@
 package it.prova.gestioneordiniarticolicategorie.model;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -9,14 +10,16 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
 @Table(name = "categoria")
 public class Categoria {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
@@ -25,31 +28,31 @@ public class Categoria {
 	private String descrizione;
 	@Column(name = "codice")
 	private String codice;
-	@ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(name = "categoria_articolo", joinColumns = @JoinColumn(name = "categoria_id", referencedColumnName = "ID"), inverseJoinColumns = @JoinColumn(name = "articolo_id", referencedColumnName = "ID"))
-	private Set<Articolo> articoli = new HashSet<Articolo>();
 
-	// Costruttore vuoto
+	// campi per le time info del record
+	@CreationTimestamp
+	@Column(name = "createdatetime")
+	private LocalDateTime createDateTime;
+	@UpdateTimestamp
+	@Column(name = "updatedatetime")
+	private LocalDateTime updateDateTime;
+
+	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "categorie")
+	private Set<Articolo> articoli = new HashSet<>();
+
 	public Categoria() {
-
+		super();
 	}
 
-	public Categoria(String descrizione, String codice, Set<Articolo> articoli) {
+	public Categoria(String descrizione) {
 		super();
 		this.descrizione = descrizione;
-		this.codice = codice;
-		this.articoli = articoli;
 	}
 
 	public Categoria(String descrizione, String codice) {
 		super();
 		this.descrizione = descrizione;
 		this.codice = codice;
-	}
-
-	public Categoria(Set<Articolo> articoli) {
-		super();
-		this.articoli = articoli;
 	}
 
 	public Long getId() {
@@ -76,6 +79,22 @@ public class Categoria {
 		this.codice = codice;
 	}
 
+	public LocalDateTime getCreateDateTime() {
+		return createDateTime;
+	}
+
+	public void setCreateDateTime(LocalDateTime createDateTime) {
+		this.createDateTime = createDateTime;
+	}
+
+	public LocalDateTime getUpdateDateTime() {
+		return updateDateTime;
+	}
+
+	public void setUpdateDateTime(LocalDateTime updateDateTime) {
+		this.updateDateTime = updateDateTime;
+	}
+
 	public Set<Articolo> getArticoli() {
 		return articoli;
 	}
@@ -86,8 +105,7 @@ public class Categoria {
 
 	@Override
 	public String toString() {
-		return "Categoria [id=" + id + ", descrizione=" + descrizione + ", codice=" + codice + ", articoli=" + articoli
-				+ "]";
+		return "Categoria [id = " + id + ", descrizione = " + descrizione + ", codice = " + codice + "]";
 	}
 
 }

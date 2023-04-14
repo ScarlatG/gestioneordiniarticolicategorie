@@ -6,6 +6,7 @@ import javax.persistence.EntityManager;
 
 import it.prova.gestioneordiniarticolicategorie.dao.EntityManagerUtil;
 import it.prova.gestioneordiniarticolicategorie.dao.OrdineDAO;
+import it.prova.gestioneordiniarticolicategorie.dao.OrdineDAOImpl;
 import it.prova.gestioneordiniarticolicategorie.model.Ordine;
 
 public class OrdineServiceImpl implements OrdineService {
@@ -95,6 +96,29 @@ public class OrdineServiceImpl implements OrdineService {
 	@Override
 	public void setOrdineDAO(OrdineDAO ordineDAO) {
 		this.ordineDAO = ordineDAO;
+
+	}
+
+	@Override
+	public Ordine caricaSingoloElemento(Long idOrdine) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+		OrdineDAO ordineDAO = new OrdineDAOImpl();
+		try {
+			entityManager.getTransaction().begin();
+
+			ordineDAO.setEntityManager(entityManager);
+			Ordine ordine = ordineDAO.get(idOrdine);
+
+			entityManager.getTransaction().commit();
+
+			return ordine;
+		} catch (Exception e) {
+			entityManager.getTransaction().rollback();
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
 
 	}
 

@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 
 import it.prova.gestioneordiniarticolicategorie.dao.ArticoloDAO;
+import it.prova.gestioneordiniarticolicategorie.dao.ArticoloDAOImpl;
 import it.prova.gestioneordiniarticolicategorie.dao.EntityManagerUtil;
 import it.prova.gestioneordiniarticolicategorie.model.Articolo;
 
@@ -98,6 +99,29 @@ public class ArticoloServiceImpl implements ArticoloService {
 	public void setArticoloDAO(ArticoloDAO articoloDAO) {
 		this.articoloDAO = articoloDAO;
 
+	}
+
+	@Override
+	public Articolo caricaSingoloElemento(Long idArticolo) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+		ArticoloDAO articoloDAO = new ArticoloDAOImpl();
+		try {
+			entityManager.getTransaction().begin();
+			
+			articoloDAO.setEntityManager(entityManager);
+			Articolo articolo = articoloDAO.get(idArticolo);
+			
+			entityManager.getTransaction().commit();
+			
+			return articolo;
+		} catch (Exception e) {
+			entityManager.getTransaction().rollback();
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
+	
 	}
 
 }

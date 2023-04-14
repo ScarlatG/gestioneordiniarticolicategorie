@@ -15,6 +15,8 @@ public interface OrdineService {
 
 	public void rimuovi(Long idOrdine) throws Exception;
 
+	public Ordine caricaSingoloElemento(Long idOrdine) throws Exception;
+
 	// Per injection
 	public void setOrdineDAO(OrdineDAO ordineDAO);
 }
