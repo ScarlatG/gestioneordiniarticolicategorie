@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import it.prova.gestioneordiniarticolicategorie.dao.ArticoloDAO;
 import it.prova.gestioneordiniarticolicategorie.dao.EntityManagerUtil;
 import it.prova.gestioneordiniarticolicategorie.dao.OrdineDAO;
 import it.prova.gestioneordiniarticolicategorie.dao.OrdineDAOImpl;
@@ -12,6 +13,19 @@ import it.prova.gestioneordiniarticolicategorie.model.Ordine;
 public class OrdineServiceImpl implements OrdineService {
 
 	private OrdineDAO ordineDAO;
+
+	private ArticoloDAO articoloDAO;
+
+	@Override
+	public void setOrdineDAO(OrdineDAO ordineDAO) {
+		this.ordineDAO = ordineDAO;
+
+	}
+
+	@Override
+	public void setArticoloDAO(ArticoloDAO articoloDAO) {
+		this.articoloDAO = articoloDAO;
+	}
 
 	@Override
 	public List<Ordine> listAll() throws Exception {
@@ -90,12 +104,6 @@ public class OrdineServiceImpl implements OrdineService {
 		} finally {
 			EntityManagerUtil.closeEntityManager(entityManager);
 		}
-
-	}
-
-	@Override
-	public void setOrdineDAO(OrdineDAO ordineDAO) {
-		this.ordineDAO = ordineDAO;
 
 	}
 

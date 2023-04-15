@@ -7,6 +7,7 @@ import javax.persistence.EntityManager;
 import it.prova.gestioneordiniarticolicategorie.dao.CategoriaDAO;
 import it.prova.gestioneordiniarticolicategorie.dao.CategoriaDAOImpl;
 import it.prova.gestioneordiniarticolicategorie.dao.EntityManagerUtil;
+import it.prova.gestioneordiniarticolicategorie.model.Articolo;
 import it.prova.gestioneordiniarticolicategorie.model.Categoria;
 
 public class CategoriaServiceImpl implements CategoriaService {
@@ -121,6 +122,50 @@ public class CategoriaServiceImpl implements CategoriaService {
 		} finally {
 			EntityManagerUtil.closeEntityManager(entityManager);
 		}
+	}
+
+	@Override
+	public Categoria caricaCategoriaEager(Long idCategoria) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+		try {
+
+			// Injection
+			categoriaDAO.setEntityManager(entityManager);
+
+			return categoriaDAO.caricaCategoriaEager(idCategoria);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
+
+	}
+
+	@Override
+	public void aggiungiArticolo(Categoria categoriaInstance, Articolo articoloInstance) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+		try {
+			entityManager.getTransaction().begin();
+
+			// Injection
+			categoriaDAO.setEntityManager(entityManager);
+
+			categoriaInstance = entityManager.merge(categoriaInstance);
+
+			articoloInstance = entityManager.merge(articoloInstance);
+			
+			articoloInstance.addToCategorie(categoriaInstance);
+
+			entityManager.getTransaction().commit();
+		} catch (Exception e) {
+			entityManager.getTransaction().rollback();
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
+
 	}
 
 }

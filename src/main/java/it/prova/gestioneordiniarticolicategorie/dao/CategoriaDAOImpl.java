@@ -3,6 +3,7 @@ package it.prova.gestioneordiniarticolicategorie.dao;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 
 import it.prova.gestioneordiniarticolicategorie.model.Categoria;
 
@@ -48,6 +49,13 @@ public class CategoriaDAOImpl implements CategoriaDAO {
 	public void setEntityManager(EntityManager entityManager) {
 		this.entityManager = entityManager;
 
+	}
+
+	@Override
+	public Categoria caricaCategoriaEager(Long idCategoria) throws Exception {
+		TypedQuery<Categoria> query = entityManager.createQuery("from Categoria c join fetch c.articoli a where c.id = ?1", Categoria.class);
+		query.setParameter(1, idCategoria);
+		return query.getResultStream().findFirst().orElse(null);
 	}
 
 }

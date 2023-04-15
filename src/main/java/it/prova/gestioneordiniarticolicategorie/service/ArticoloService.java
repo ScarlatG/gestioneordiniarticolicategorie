@@ -4,6 +4,7 @@ import java.util.List;
 
 import it.prova.gestioneordiniarticolicategorie.dao.ArticoloDAO;
 import it.prova.gestioneordiniarticolicategorie.model.Articolo;
+import it.prova.gestioneordiniarticolicategorie.model.Categoria;
 
 public interface ArticoloService {
 
@@ -16,6 +17,12 @@ public interface ArticoloService {
 	public void rimuovi(Long idArticolo) throws Exception;
 
 	public Articolo caricaSingoloElemento(Long idArticolo) throws Exception;
+
+	public Articolo caricaArticoloEager(Long idArticolo) throws Exception;
+
+	public void aggiungiCategoria(Articolo articoloInstance, Categoria categoriaInstance) throws Exception;
+	
+	public void rimozioneCompletaArticolo (Long idArticolo) throws Exception;
 
 	// Per injection
 	public void setArticoloDAO(ArticoloDAO articoloDAO);
