@@ -24,6 +24,10 @@ public interface CategoriaService {
 
 	public void rimozioneCategoriaCompleta(Long idCategoria) throws Exception;
 
+	public List<Categoria> trovaCategoriePerOrdine(Long idOrdine) throws Exception;
+
+	public List<String> trovaCategoriePerOrdiniMese(int anno, int mese) throws Exception;
+
 	// Per injection
 	public void setCategoriaDAO(CategoriaDAO categoriaDAO);
 }

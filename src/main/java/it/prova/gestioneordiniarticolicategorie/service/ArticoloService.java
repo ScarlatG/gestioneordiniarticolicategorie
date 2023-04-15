@@ -21,8 +21,14 @@ public interface ArticoloService {
 	public Articolo caricaArticoloEager(Long idArticolo) throws Exception;
 
 	public void aggiungiCategoria(Articolo articoloInstance, Categoria categoriaInstance) throws Exception;
-	
-	public void rimozioneCompletaArticolo (Long idArticolo) throws Exception;
+
+	public void rimozioneCompletaArticolo(Long idArticolo) throws Exception;
+
+	public double sommaPrezziPerCategoria(String codiceCategoria) throws Exception;
+
+	public double calcolaTotalePrezzoPerDestinatario(String destinatario) throws Exception;
+
+	public List<Articolo> trovaArticoliInSituazioniStrane() throws Exception;
 
 	// Per injection
 	public void setArticoloDAO(ArticoloDAO articoloDAO);

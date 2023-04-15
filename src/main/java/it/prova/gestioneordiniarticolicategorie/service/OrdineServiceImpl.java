@@ -1,13 +1,25 @@
 package it.prova.gestioneordiniarticolicategorie.service;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 
 import it.prova.gestioneordiniarticolicategorie.dao.ArticoloDAO;
+import it.prova.gestioneordiniarticolicategorie.dao.ArticoloDAOImpl;
+import it.prova.gestioneordiniarticolicategorie.dao.CategoriaDAO;
+import it.prova.gestioneordiniarticolicategorie.dao.CategoriaDAOImpl;
 import it.prova.gestioneordiniarticolicategorie.dao.EntityManagerUtil;
 import it.prova.gestioneordiniarticolicategorie.dao.OrdineDAO;
 import it.prova.gestioneordiniarticolicategorie.dao.OrdineDAOImpl;
+import it.prova.gestioneordiniarticolicategorie.model.Articolo;
+import it.prova.gestioneordiniarticolicategorie.model.Categoria;
 import it.prova.gestioneordiniarticolicategorie.model.Ordine;
 
 public class OrdineServiceImpl implements OrdineService {
@@ -114,6 +126,7 @@ public class OrdineServiceImpl implements OrdineService {
 		try {
 			entityManager.getTransaction().begin();
 
+			// Injection
 			ordineDAO.setEntityManager(entityManager);
 			Ordine ordine = ordineDAO.get(idOrdine);
 
@@ -128,6 +141,98 @@ public class OrdineServiceImpl implements OrdineService {
 			EntityManagerUtil.closeEntityManager(entityManager);
 		}
 
+	}
+
+	@Override
+	public List<Ordine> trovaOrdiniPerCategoria(String codiceCategoria) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+		try {
+			CategoriaDAO categoriaDAO = new CategoriaDAOImpl();
+			categoriaDAO.setEntityManager(entityManager);
+
+			// Trova la categoria con il codice specificato
+			Categoria categoria = categoriaDAO.findByCodice(codiceCategoria);
+			if (categoria == null) {
+				throw new Exception("Categoria non trovata");
+			}
+
+			// Injection dell'entityManager nel DAO
+			ordineDAO.setEntityManager(entityManager);
+
+			// Trova gli ordini associati alla categoria trovata
+			List<Ordine> ordini = ordineDAO.findByCategoria(categoria);
+
+			return ordini;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
+	}
+
+	@Override
+	public Ordine trovaOrdinePiuRecentePerCategoria(LocalDate data, String codiceCategoria) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+		OrdineDAO ordineDAO = new OrdineDAOImpl();
+		try {
+			// Injection
+			ordineDAO.setEntityManager(entityManager);
+
+			List<Ordine> ordini = ordineDAO.findOrdiniPerCategoria(codiceCategoria);
+
+			if (ordini.isEmpty()) {
+				throw new Exception("Non ci sono ordini per la categoria specificata");
+			}
+
+			// Filtra gli ordini in base alla data
+			List<Ordine> ordiniFiltrati = ordini.stream()
+					.filter(ordine -> ordine.getDataSpedizione() != null && ordine.getDataSpedizione().isBefore(data))
+					.collect(Collectors.toList());
+
+			if (ordiniFiltrati.isEmpty()) {
+				throw new Exception("Non ci sono ordini per la categoria e la data specificate");
+			}
+
+			// Ordina gli ordini in base alla data di spedizione
+			Collections.sort(ordiniFiltrati, new Comparator<Ordine>() {
+				public int compare(Ordine o1, Ordine o2) {
+					return o2.getDataSpedizione().compareTo(o1.getDataSpedizione());
+				}
+			});
+
+			// Ritorna l'ordine più recente
+			return ordiniFiltrati.get(0);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
+	}
+
+	@Override
+	public List<String> trovaIndirizziPerNumeroSeriale(String numeroSeriale) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+		try {
+			ArticoloDAO articoloDAO = new ArticoloDAOImpl();
+			articoloDAO.setEntityManager(entityManager);
+
+			List<Articolo> articoli = articoloDAO.findArticoliPerNumeroSeriale(numeroSeriale);
+			Set<String> indirizzi = new HashSet<>();
+			for (Articolo articolo : articoli) {
+				Ordine ordine = articolo.getOrdine();
+				if (ordine != null) {
+					indirizzi.add(ordine.getIndirizzoSpedizione());
+				}
+			}
+			return new ArrayList<>(indirizzi);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
 	}
 
 }

@@ -1,14 +1,19 @@
 package it.prova.gestioneordiniarticolicategorie.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 
 import it.prova.gestioneordiniarticolicategorie.dao.ArticoloDAO;
 import it.prova.gestioneordiniarticolicategorie.dao.ArticoloDAOImpl;
+import it.prova.gestioneordiniarticolicategorie.dao.CategoriaDAO;
+import it.prova.gestioneordiniarticolicategorie.dao.CategoriaDAOImpl;
 import it.prova.gestioneordiniarticolicategorie.dao.EntityManagerUtil;
 import it.prova.gestioneordiniarticolicategorie.model.Articolo;
 import it.prova.gestioneordiniarticolicategorie.model.Categoria;
+import it.prova.gestioneordiniarticolicategorie.model.Ordine;
 
 public class ArticoloServiceImpl implements ArticoloService {
 
@@ -186,6 +191,82 @@ public class ArticoloServiceImpl implements ArticoloService {
 			EntityManagerUtil.closeEntityManager(entityManager);
 		}
 
+	}
+
+	@Override
+	public double sommaPrezziPerCategoria(String codiceCategoria) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+		CategoriaDAO categoriaDAO = new CategoriaDAOImpl();
+		ArticoloDAO articoloDAO = new ArticoloDAOImpl();
+		try {
+			// Injection
+			categoriaDAO.setEntityManager(entityManager);
+			Categoria categoria = categoriaDAO.findByCodice(codiceCategoria);
+
+			if (categoria == null) {
+				throw new Exception("Categoria non trovata");
+			}
+
+			List<Articolo> articoli = articoloDAO.findArticoliPerCategoria(categoria.getCodice());
+
+			double sommaPrezzi = 0;
+			for (Articolo articolo : articoli) {
+				sommaPrezzi += articolo.getPrezzoSingolo();
+			}
+
+			return sommaPrezzi;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
+	}
+
+	@Override
+	public double calcolaTotalePrezzoPerDestinatario(String destinatario) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+		try {
+			TypedQuery<Double> query = entityManager.createQuery(
+					"SELECT SUM(a.prezzo) FROM Articolo a WHERE a.destinatario = :destinatario", Double.class);
+			query.setParameter("destinatario", destinatario);
+			Double result = query.getSingleResult();
+			return result != null ? result : 0.0;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
+	}
+
+	@Override
+	public List<Articolo> trovaArticoliInSituazioniStrane() throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+		ArticoloDAO articoloDAO = new ArticoloDAOImpl();
+		List<Articolo> articoli = null;
+		try {
+			// Injection
+			articoloDAO.setEntityManager(entityManager);
+			articoli = articoloDAO.findArticoliInSituazioniStrane();
+
+			// Filtraggio degli articoli in situazioni strane
+			List<Articolo> articoliInSituationeStrana = new ArrayList<>();
+			for (Articolo articolo : articoli) {
+				Ordine ordine = articolo.getOrdine();
+				if (ordine != null && ordine.getDataSpedizione() != null
+						&& ordine.getDataSpedizione().isAfter(ordine.getDataScadenza())) {
+					articoliInSituationeStrana.add(articolo);
+				}
+			}
+
+			return articoliInSituationeStrana;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
 	}
 
 }

@@ -1,14 +1,22 @@
 package it.prova.gestioneordiniarticolicategorie.service;
 
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 
 import it.prova.gestioneordiniarticolicategorie.dao.CategoriaDAO;
 import it.prova.gestioneordiniarticolicategorie.dao.CategoriaDAOImpl;
 import it.prova.gestioneordiniarticolicategorie.dao.EntityManagerUtil;
+import it.prova.gestioneordiniarticolicategorie.dao.OrdineDAO;
+import it.prova.gestioneordiniarticolicategorie.dao.OrdineDAOImpl;
 import it.prova.gestioneordiniarticolicategorie.model.Articolo;
 import it.prova.gestioneordiniarticolicategorie.model.Categoria;
+import it.prova.gestioneordiniarticolicategorie.model.Ordine;
 
 public class CategoriaServiceImpl implements CategoriaService {
 
@@ -187,6 +195,54 @@ public class CategoriaServiceImpl implements CategoriaService {
 			EntityManagerUtil.closeEntityManager(entityManager);
 		}
 
+	}
+
+	@Override
+	public List<Categoria> trovaCategoriePerOrdine(Long idOrdine) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+		try {
+
+			// injection
+			categoriaDAO.setEntityManager(entityManager);
+
+			return categoriaDAO.findAllDistinctByOrdine(idOrdine);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
+	}
+
+	@Override
+	public List<String> trovaCategoriePerOrdiniMese(int anno, int mese) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+		OrdineDAO ordineDAO = new OrdineDAOImpl();
+		try {
+			// Injection
+			ordineDAO.setEntityManager(entityManager);
+
+			LocalDate inizioMese = LocalDate.of(anno, mese, 1);
+			LocalDate fineMese = inizioMese.with(TemporalAdjusters.lastDayOfMonth());
+
+			List<Ordine> ordini = ordineDAO.findOrdiniPerPeriodo(inizioMese, fineMese);
+
+			Set<String> categorie = new HashSet<>();
+			for (Ordine ordine : ordini) {
+				for (Articolo articolo : ordine.getArticoli()) {
+					for (Categoria categoria : articolo.getCategorie()) {
+						categorie.add(categoria.getCodice());
+					}
+				}
+			}
+			return new ArrayList<>(categorie);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
 	}
 
 }
