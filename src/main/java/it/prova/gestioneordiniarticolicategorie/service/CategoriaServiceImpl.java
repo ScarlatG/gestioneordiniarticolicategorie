@@ -154,7 +154,7 @@ public class CategoriaServiceImpl implements CategoriaService {
 			categoriaInstance = entityManager.merge(categoriaInstance);
 
 			articoloInstance = entityManager.merge(articoloInstance);
-			
+
 			articoloInstance.addToCategorie(categoriaInstance);
 
 			entityManager.getTransaction().commit();
@@ -162,6 +162,27 @@ public class CategoriaServiceImpl implements CategoriaService {
 			entityManager.getTransaction().rollback();
 			e.printStackTrace();
 			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
+
+	}
+
+	@Override
+	public void rimozioneCategoriaCompleta(Long idCategoria) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+		try {
+			entityManager.getTransaction().begin();
+
+			// Injection
+			categoriaDAO.setEntityManager(entityManager);
+
+			categoriaDAO.deleteEntireCategoria(idCategoria);
+
+			entityManager.getTransaction().commit();
+		} catch (Exception e) {
+			entityManager.getTransaction().rollback();
+			e.printStackTrace();
 		} finally {
 			EntityManagerUtil.closeEntityManager(entityManager);
 		}

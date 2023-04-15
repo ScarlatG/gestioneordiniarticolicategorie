@@ -22,6 +22,8 @@ public interface CategoriaService {
 
 	public void aggiungiArticolo(Categoria categoriaInstance, Articolo articoloInstance) throws Exception;
 
+	public void rimozioneCategoriaCompleta(Long idCategoria) throws Exception;
+
 	// Per injection
 	public void setCategoriaDAO(CategoriaDAO categoriaDAO);
 }

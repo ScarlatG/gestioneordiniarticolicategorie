@@ -44,6 +44,9 @@ public class MyTest {
 			// Test aggiornamento ordine esistente
 //			testAggiornamentoOrdineEsistente(ordineServiceInstance);
 //			System.out.println("In tabella Ordine ci sono " + ordineServiceInstance.listAll().size() + " elementi.");
+			
+			// Test rimozione, e nel caso sia collegato ad un articolo lanciare una eccezione
+//			testRimuoviOrdine(ordineServiceInstance, articoloServiceInstance);
 
 			// ----------------------------------------------- INIZIO TEST ARTICOLO
 			// -----------------------------------------------
@@ -59,7 +62,7 @@ public class MyTest {
 
 			// Test aggiungi articolo a categoria
 //			testAggiungiArticoloACategoria(articoloServiceInstance, categoriaServiceInstance, ordineServiceInstance);
-			
+
 			// Test rimozione completa di articolo
 //			testRimozioneArticoloCompleta(articoloServiceInstance, categoriaServiceInstance, ordineServiceInstance);
 
@@ -74,6 +77,9 @@ public class MyTest {
 
 			// Test aggiungi categoria ad articolo
 //			testAggiungiCategoriaAdArticolo(articoloServiceInstance, categoriaServiceInstance, ordineServiceInstance);
+			
+			// Test rimozione completa categoria
+//			testRimozioneCategoriaCompleta(articoloServiceInstance, categoriaServiceInstance, ordineServiceInstance);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -122,6 +128,45 @@ public class MyTest {
 		System.out.println("------------- testAggiornamentoOrdineEsistente FINE -------------");
 
 	}
+	
+	
+	// Metodo rimozione, e nel caso sia collegato ad un articolo lanciare una eccezione
+	private static void testRimuoviOrdine(OrdineService ordineServiceInstance, ArticoloService articoloServiceInstance)
+			throws Exception {
+		System.out.println("------------- testRimuoviOrdine INIZIO -------------");
+
+		Ordine ordineDaInserire = new Ordine("Mario Rossi", "Via Mosca 52", LocalDate.of(2023, 04, 21),
+				LocalDate.of(2023, 06, 30));
+		ordineServiceInstance.inserisciNuovo(ordineDaInserire);
+		Long idOrdineDaInserire = ordineDaInserire.getId();
+		if (idOrdineDaInserire == null) {
+			throw new RuntimeException("testRimuoviOrdine FALLITO: Ordine non inserito.");
+		}
+		Articolo nuovoArticolo = new Articolo("Scarpe Nike", "12345678", 329D, LocalDate.now());
+		nuovoArticolo.setOrdine(ordineDaInserire);
+		articoloServiceInstance.inserisciNuovo(nuovoArticolo);
+		if (nuovoArticolo.getId() == null) {
+			throw new RuntimeException("testRimuoviOrdine FALLITO: Articolo non inserito");
+		}
+		if (!nuovoArticolo.getOrdine().getId().equals(idOrdineDaInserire)) {
+			throw new RuntimeException("testRimuoviOrdine FALLITO: L'ID dell'ordine non corrisponde");
+		}
+
+
+		Ordine ordineDaEliminare = new Ordine("Mario Rossi", "Via Mosca 52", LocalDate.of(2023, 04, 21),
+				LocalDate.of(2023, 06, 30));
+		ordineServiceInstance.inserisciNuovo(ordineDaEliminare);
+		Long idOrdineDaEliminare = ordineDaEliminare.getId();
+		if (idOrdineDaEliminare == null) {
+			throw new RuntimeException("testRimuoviOrdine FALLITO: Ordine non inserito.");
+		}
+
+		ordineServiceInstance.rimuovi(idOrdineDaEliminare);
+
+		System.out.println("------------- testRimuoviOrdine FINE -------------");
+
+	}
+
 
 	// ----------------------------------------------- METODI DEI TEST ARTICOLO
 	// -----------------------------------------------
@@ -353,6 +398,48 @@ public class MyTest {
 		}
 
 		System.out.println("------------- testAssociaCategoriaAdArticolo FINE -------------");
+	}
+
+	// Metodo rimozione completa categoria
+	public static void testRimozioneCategoriaCompleta(ArticoloService articoloServiceInstance,
+			CategoriaService categoriaServiceInstance, OrdineService ordineServiceInstance) throws Exception {
+		System.out.println("------------- testRimozioneCategoriaCompleta INIZIO -------------");
+		Categoria nuovaCategoria = new Categoria("Arte", "443");
+		categoriaServiceInstance.inserisciNuovo(nuovaCategoria);
+		if (nuovaCategoria.getId() == null) {
+			throw new RuntimeException("testRimozioneCategoriaCompleta FALLITO: Ordine non inserito.");
+		}
+
+		Ordine nuovoOrdine = new Ordine("Alberto Rossi", "Via Appia 52", LocalDate.of(2002, 5, 25),
+				LocalDate.of(2023, 8, 30));
+		ordineServiceInstance.inserisciNuovo(nuovoOrdine);
+		if (nuovoOrdine.getId() == null) {
+			throw new RuntimeException("testRimozioneCategoriaCompleta FALLITO: Ordine non inserito.");
+		}
+
+		Articolo nuovoArticolo1 = new Articolo("Quadro", "0010", 299D, LocalDate.now());
+		Articolo nuovoArticolo2 = new Articolo("Dipinto", "0011", 299D, LocalDate.now());
+		nuovoArticolo1.setOrdine(nuovoOrdine);
+		articoloServiceInstance.inserisciNuovo(nuovoArticolo1);
+		if (nuovoArticolo1.getId() == null) {
+			throw new RuntimeException("testRimozioneCategoriaCompleta FALLITO: articolo non inserito.");
+		}
+		nuovoArticolo2.setOrdine(nuovoOrdine);
+		articoloServiceInstance.inserisciNuovo(nuovoArticolo2);
+		if (nuovoArticolo2.getId() == null) {
+			throw new RuntimeException("testRimozioneCategoriaCompleta FALLITO: articolo non inserito.");
+		}
+
+		categoriaServiceInstance.aggiungiArticolo(nuovaCategoria, nuovoArticolo1);
+		categoriaServiceInstance.aggiungiArticolo(nuovaCategoria, nuovoArticolo2);
+		Categoria categoriaReloaded = categoriaServiceInstance.caricaCategoriaEager(nuovaCategoria.getId());
+		if (categoriaReloaded.getArticoli().isEmpty()) {
+			throw new RuntimeException("testRimozioneCategoriaCompleta FALLITO: articolo non associato a categoria");
+		}
+
+		categoriaServiceInstance.rimozioneCategoriaCompleta(categoriaReloaded.getId());
+
+		System.out.println("------------- testRimozioneCategoriaCompleta FINE -------------");
 	}
 
 }

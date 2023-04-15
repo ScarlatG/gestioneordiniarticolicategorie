@@ -53,9 +53,19 @@ public class CategoriaDAOImpl implements CategoriaDAO {
 
 	@Override
 	public Categoria caricaCategoriaEager(Long idCategoria) throws Exception {
-		TypedQuery<Categoria> query = entityManager.createQuery("from Categoria c join fetch c.articoli a where c.id = ?1", Categoria.class);
+		TypedQuery<Categoria> query = entityManager
+				.createQuery("from Categoria c join fetch c.articoli a where c.id = ?1", Categoria.class);
 		query.setParameter(1, idCategoria);
 		return query.getResultStream().findFirst().orElse(null);
+	}
+
+	@Override
+	public void deleteEntireCategoria(Long idCategoria) throws Exception {
+		entityManager.createNativeQuery("delete from articolo_categoria a where a.categoria_id = ?1")
+				.setParameter(1, idCategoria).executeUpdate();
+		entityManager.createNativeQuery("delete from categoria c where c.id = ?1").setParameter(1, idCategoria)
+				.executeUpdate();
+
 	}
 
 }
