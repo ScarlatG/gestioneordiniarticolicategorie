@@ -30,6 +30,17 @@ public interface ArticoloService {
 
 	public List<Articolo> trovaArticoliInSituazioniStrane() throws Exception;
 
+	public void aggiungiCategoriaAArticoloEsistente(Categoria categoria, Articolo articolo) throws Exception;
+
+	public Articolo caricaSingoloElementoConCategorie(Long id) throws Exception;
+
+	public void rimuoviArticoloPrevioScollegamento(Long id) throws Exception;
+
+	public Double ottieniSommaPrezziDiArticoliDiUnaCategoria(Categoria categoria) throws Exception;
+
+	public List<Articolo> getArticoliConErroriDOrdine() throws Exception;
+
 	// Per injection
 	public void setArticoloDAO(ArticoloDAO articoloDAO);
+
 }

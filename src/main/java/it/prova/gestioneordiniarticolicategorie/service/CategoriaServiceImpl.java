@@ -245,4 +245,77 @@ public class CategoriaServiceImpl implements CategoriaService {
 		}
 	}
 
+	@Override
+	public void aggiungiArticoloACategoriaEsistente(Categoria categoria, Articolo articolo) {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		try {
+
+			categoriaDAO.setEntityManager(entityManager);
+			entityManager.getTransaction().begin();
+			categoria = entityManager.merge(categoria);
+			articolo = entityManager.merge(articolo);
+			articolo.addToCategorie(categoria);
+//			categoria.getArticoli().add(articolo);
+			entityManager.getTransaction().commit();
+
+		} catch (Exception e) {
+
+			entityManager.getTransaction().rollback();
+			e.printStackTrace();
+			throw e;
+
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
+	}
+
+	@Override
+	public void aggiungiArticoloACategoriaEsistente(Categoria categoria, Articolo articolo) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		try {
+
+			categoriaDAO.setEntityManager(entityManager);
+			entityManager.getTransaction().begin();
+			categoria = entityManager.merge(categoria);
+			articolo = entityManager.merge(articolo);
+			articolo.addToCategorie(categoria);
+//			categoria.getArticoli().add(articolo);
+			entityManager.getTransaction().commit();
+
+		} catch (Exception e) {
+
+			entityManager.getTransaction().rollback();
+			e.printStackTrace();
+			throw e;
+
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
+
+	}
+
+	@Override
+	public void rimuoviCategoriaPrevioScollegamento(Long id) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		try {
+
+			categoriaDAO.setEntityManager(entityManager);
+			entityManager.getTransaction().begin();
+			categoriaDAO.deleteByIdPostScollegamento(id);
+			entityManager.getTransaction().commit();
+
+		} catch (Exception e) {
+
+			entityManager.getTransaction().rollback();
+			e.printStackTrace();
+			throw e;
+
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
+	}
+
 }

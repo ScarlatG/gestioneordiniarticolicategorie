@@ -3,7 +3,6 @@ package it.prova.gestioneordiniarticolicategorie.dao;
 import java.util.List;
 
 import it.prova.gestioneordiniarticolicategorie.model.Categoria;
-import it.prova.gestioneordiniarticolicategorie.model.Ordine;
 
 public interface CategoriaDAO extends IBaseDAO<Categoria> {
 
@@ -16,5 +15,9 @@ public interface CategoriaDAO extends IBaseDAO<Categoria> {
 	List<String> findDistinctCategoriesByMonth(int year, int month) throws Exception;
 
 	public Categoria findByCodice(String codice) throws Exception;
+
+	public Categoria findByIdFetchEagher(Long id) throws Exception;
+
+	public void deleteByIdPostScollegamento(Long id) throws Exception;
 
 }

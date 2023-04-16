@@ -235,4 +235,120 @@ public class OrdineServiceImpl implements OrdineService {
 		}
 	}
 
+	@Override
+	public List<Categoria> distinteCategorieDiUnOrdine(Ordine ordine) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		if (ordine.getId() == null) {
+			throw new RuntimeException("Errore input");
+		}
+
+		try {
+
+			ordineDAO.setEntityManager(entityManager);
+
+			return ordineDAO.distinteCategorieDiUnOrdine(ordine.getId());
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+
+		}
+	}
+
+	@Override
+	public Ordine caricaOrdinePiuRecenteDiUnaCategoria(Categoria categoria) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		if (categoria.getId() == null) {
+			throw new RuntimeException("Errore input");
+		}
+
+		try {
+
+			ordineDAO.setEntityManager(entityManager);
+
+			return ordineDAO.getOrdinePiuRecenteByCateoria(categoria.getId());
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+
+		}
+	}
+
+	@Override
+	public List<String> caricaCodiciDiCategorieDiArtcioliDiOrdiniEffettuatiInMeseEAnno(int mese, int anno)
+			throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		if (mese > 12 || mese < 1 || anno < 1000 || anno > 2999) {
+			throw new RuntimeException("Errore input");
+		}
+
+		try {
+
+			ordineDAO.setEntityManager(entityManager);
+
+			return ordineDAO.getCodiciDiCategorieDiMeseEAnno(mese, anno);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+
+		}
+	}
+
+	@Override
+	public Double caricaSommaPrezziDiUnDesinatario(String nomeDestinatario) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		if (nomeDestinatario == null) {
+			throw new RuntimeException("Errore input");
+		}
+
+		try {
+
+			ordineDAO.setEntityManager(entityManager);
+
+			return ordineDAO.getSumPrezziDiDesinatario(nomeDestinatario);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+
+		}
+	}
+
+	@Override
+	public List<String> listaDiIndirizziDiordiniAventiArticoliConSeriale(String segmentoSeriale) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		if (segmentoSeriale == null) {
+			throw new RuntimeException("Errore input");
+		}
+
+		try {
+
+			ordineDAO.setEntityManager(entityManager);
+
+			return ordineDAO.listaDiIndirizziDiordiniAventiArticoliConSeriale(segmentoSeriale);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+
+		}
+	}
+
 }

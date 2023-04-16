@@ -1,6 +1,7 @@
 package it.prova.gestioneordiniarticolicategorie.test;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 import it.prova.gestioneordiniarticolicategorie.dao.EntityManagerUtil;
@@ -14,7 +15,7 @@ import it.prova.gestioneordiniarticolicategorie.service.OrdineService;
 
 public class MyTest {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 
 		OrdineService ordineServiceInstance = MyServiceFactory.getOrdineServiceInstance();
 		ArticoloService articoloServiceInstance = MyServiceFactory.getArticoloServiceInstance();
@@ -22,64 +23,57 @@ public class MyTest {
 
 		try {
 
-//			System.out.println("In tabella Ordine ci sono " + ordineServiceInstance.listAll().size() + " elementi.");
-//
-//			System.out.println(" -------------------------------------------------------------------------- ");
-//
-//			System.out
-//					.println("In tabella Articolo ci sono " + articoloServiceInstance.listAll().size() + " elementi.");
-//
-//			System.out.println(" -------------------------------------------------------------------------- ");
-//
-//			System.out.println(
-//					"In tabella Categoria ci sono " + categoriaServiceInstance.listAll().size() + " elementi.");
+			// *****************INIZIO TEST ORDINE******************************
 
-			// ----------------------------------------------- INIZIO TEST ORDINE
-			// -----------------------------------------------
+			System.out.println("Nella tabella ordine ci sono " + ordineServiceInstance.listAll().size() + " elementi");
+			testInsertOrdine(ordineServiceInstance);
+			testUpdateOrdine(ordineServiceInstance);
+			testOrdiniDiUnaCategoria(categoriaServiceInstance, articoloServiceInstance, ordineServiceInstance);
+			testCaricaOrdinePiuRecenteDiUnaCategoria(categoriaServiceInstance, articoloServiceInstance,
+					ordineServiceInstance);
+			testCaricaCodiciDiCategorieDiArtcioliDiOrdiniEffettuatiInMeseEAnno(categoriaServiceInstance,
+					articoloServiceInstance, ordineServiceInstance);
+			testCaricaSommaPrezziDiUnDesinatario(categoriaServiceInstance, articoloServiceInstance,
+					ordineServiceInstance);
+			testListaDiIndirizziDiordiniAventiArticoliConSeriale(categoriaServiceInstance, articoloServiceInstance,
+					ordineServiceInstance);
 
-			// Test inserimento nuovo ordine
-//			testInserimentoNuovoOrdine(ordineServiceInstance);
-//			System.out.println("In tabella Ordine ci sono " + ordineServiceInstance.listAll().size() + " elementi.");
+			System.out.println("Nella tabella ordine ci sono " + ordineServiceInstance.listAll().size() + " elementi");
 
-			// Test aggiornamento ordine esistente
-//			testAggiornamentoOrdineEsistente(ordineServiceInstance);
-//			System.out.println("In tabella Ordine ci sono " + ordineServiceInstance.listAll().size() + " elementi.");
-			
-			// Test rimozione, e nel caso sia collegato ad un articolo lanciare una eccezione
-//			testRimuoviOrdine(ordineServiceInstance, articoloServiceInstance);
+			// *****************FINE TEST ORDINE********************************
 
-			// ----------------------------------------------- INIZIO TEST ARTICOLO
-			// -----------------------------------------------
+			// *****************INIZIO TEST ARTICOLO****************************
 
-			// Test inserimento nuovo articolo
-//			testInserimentoNuovoArticolo(ordineServiceInstance, articoloServiceInstance);
+			System.out.println(
+					"Nella tabella articolo ci sono " + articoloServiceInstance.listAll().size() + " elementi");
+			testInsertArticolo(ordineServiceInstance, articoloServiceInstance);
+			testUpdateArticolo(ordineServiceInstance, articoloServiceInstance);
+			testRimuoviArticoloPrevioScollegamento(categoriaServiceInstance, articoloServiceInstance,
+					ordineServiceInstance);
+			testAggiungiCategoriaAAritcoloEsistente(categoriaServiceInstance, articoloServiceInstance,
+					ordineServiceInstance);
+			testOttieniSommaPrezziDiArticoliDiUnaCategoria(categoriaServiceInstance, articoloServiceInstance,
+					ordineServiceInstance);
+			testGetArticoliConErroriDOrdine(categoriaServiceInstance, articoloServiceInstance, ordineServiceInstance);
+			System.out.println(
+					"Nella tabella articolo ci sono " + articoloServiceInstance.listAll().size() + " elementi");
 
-			// Test aggiornamento articlo esistente
-//			testAggiornamentoArticoloEsistente(articoloServiceInstance);
+			// *****************FINE TEST ARTICOLO******************************
 
-			// Test rimozione di un articolo legato ad un ordine
-//			testRimozioneArticoloDaOrdine(articoloServiceInstance, ordineServiceInstance);
+			// *****************INIZIO TEST CATEGORIA****************************
 
-			// Test aggiungi articolo a categoria
-//			testAggiungiArticoloACategoria(articoloServiceInstance, categoriaServiceInstance, ordineServiceInstance);
+			System.out.println(
+					"Nella tabella categoria ci sono " + categoriaServiceInstance.listAll().size() + " elementi");
+			testInsertCategoria(categoriaServiceInstance);
+			testUpdateCategoria(categoriaServiceInstance);
+			testAggiungiArticoloACategoriaEsistente(categoriaServiceInstance, articoloServiceInstance,
+					ordineServiceInstance);
+			testRimuoviCategoriaPrevioScollegamento(categoriaServiceInstance, articoloServiceInstance,
+					ordineServiceInstance);
+			System.out.println(
+					"Nella tabella categoria ci sono " + categoriaServiceInstance.listAll().size() + " elementi");
 
-			// Test rimozione completa di articolo
-//			testRimozioneArticoloCompleta(articoloServiceInstance, categoriaServiceInstance, ordineServiceInstance);
-
-			// ----------------------------------------------- INIZIO TEST CATEGORIA
-			// -----------------------------------------------
-
-			// Test inserimento nuova categoria
-//			testInserimentoNuovaCategoria(categoriaServiceInstance);
-
-			// Test aggiornamento categoria esistente
-//			testAggiornamentoCategoriaEsistente(categoriaServiceInstance);
-
-			// Test aggiungi categoria ad articolo
-//			testAggiungiCategoriaAdArticolo(articoloServiceInstance, categoriaServiceInstance, ordineServiceInstance);
-			
-			// Test rimozione completa categoria
-//			testRimozioneCategoriaCompleta(articoloServiceInstance, categoriaServiceInstance, ordineServiceInstance);
+			// *****************FINE TEST CATEGORIA******************************
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -89,357 +83,683 @@ public class MyTest {
 
 	}
 
-	// ----------------------------------------------- METODI DEI TEST ORDINE
-	// -----------------------------------------------
+	// *****************INIZIO TEST ORDINE****************************
 
-	// Metodo test inserimento nuovo ordine
-	private static void testInserimentoNuovoOrdine(OrdineService ordineServiceInstance) throws Exception {
-		System.out.println("------------- testInserimentoNuovoOrdine INIZIO -------------");
+	private static void testInsertOrdine(OrdineService ordineServiceIstance) throws Exception {
 
-		Ordine ordineDaInserire = new Ordine("Mario Rossi", "Via Mosca 52", LocalDate.of(2023, 04, 21),
-				LocalDate.of(2023, 06, 30));
-		ordineServiceInstance.inserisciNuovo(ordineDaInserire);
-		if (ordineDaInserire.getId() == null) {
-			throw new RuntimeException("testInserimentoNuovoOrdine FALLITO: Ordine non inserito.");
+		System.out.println("\n***********INIZIO TEST testInsertOrdine************\n");
+
+		Ordine ordine = new Ordine("Mario", "Via Roma 12", LocalDate.parse("2020-05-20"),
+				LocalDate.parse("2020-05-20"));
+
+		ordineServiceIstance.inserisciNuovo(ordine);
+		if (ordine.getId() == null) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testInsertOrdine: ordine non aggiunto**********\n");
+
 		}
-		System.out.println("------------- testInserimentoNuovoOrdine FINE -------------");
+
+		ordineServiceIstance.rimuovi(ordine.getId());
+
+		System.out.println("\n***********FINE TEST testInsertOrdine: PASSED************\n");
+
 	}
 
-	// Metodo test aggiornamento ordine esistente
-	private static void testAggiornamentoOrdineEsistente(OrdineService ordineServiceInstance) throws Exception {
-		System.out.println("------------- testAggiornamentoOrdineEsistente INIZIO -------------");
+	private static void testUpdateOrdine(OrdineService ordineServiceIstance) throws Exception {
 
-		List<Ordine> listaOrdiniPresenti = ordineServiceInstance.listAll();
-		if (listaOrdiniPresenti.size() < 1) {
-			throw new RuntimeException("testAggiornamentoOrdineEsistente FALLITO: non sono presenti voci nel DB.");
+		System.out.println("\n***********INIZIO TEST testUpdateOrdine************\n");
+
+		Ordine ordine = new Ordine("Mario", "Via Roma 12", LocalDate.parse("2020-05-20"),
+				LocalDate.parse("2020-05-20"));
+
+		String nomeOrdine = ordine.getNomeDestinatario();
+
+		ordineServiceIstance.inserisciNuovo(ordine);
+		if (ordine.getId() == null) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testUpdateOrdine: ordine non aggiunto**********\n");
+
 		}
 
-		Ordine ordineDaAggiornare = listaOrdiniPresenti.get(0);
-		System.out.println("Prima dell'aggiornamento: " + ordineDaAggiornare);
-		String nuovoDestinatario = "Scarlat Gabriel";
-		ordineDaAggiornare.setNomeDestinatario(nuovoDestinatario);
-		ordineServiceInstance.aggiorna(ordineDaAggiornare);
+		ordine.setNomeDestinatario("Mimmo");
+		ordineServiceIstance.aggiorna(ordine);
 
-		Ordine ordineReloaded = ordineServiceInstance.caricaSingoloElemento(ordineDaAggiornare.getId());
-		if (ordineReloaded.getId() != ordineDaAggiornare.getId()) {
-			throw new RuntimeException("testAggiornamentoOrdineEsistente FALLITO: update non avvenuto.");
+		Ordine ordineReload = ordineServiceIstance.caricaSingoloElemento(ordine.getId());
+		String nomeOrdineNuovo = ordineReload.getNomeDestinatario();
+
+		if (nomeOrdineNuovo.equals(nomeOrdine)) {
+
+			throw new RuntimeException(
+					"\n****************TEST FAILED testUpdateOrdine: ordine non aggiornato**********\n");
 		}
-		System.out.println("Dopo l'aggiornamento: " + ordineReloaded);
-		System.out.println("------------- testAggiornamentoOrdineEsistente FINE -------------");
+
+		ordineServiceIstance.rimuovi(ordine.getId());
+
+		System.out.println("\n***********FINE TEST testUpdateOrdine: PASSED************\n");
 
 	}
-	
-	
-	// Metodo rimozione, e nel caso sia collegato ad un articolo lanciare una eccezione
-	private static void testRimuoviOrdine(OrdineService ordineServiceInstance, ArticoloService articoloServiceInstance)
+
+	private static void testOrdiniDiUnaCategoria(CategoriaService categoriaServiceIstance,
+			ArticoloService articoloServiceIstance, OrdineService ordineServiceIstance) throws Exception {
+
+		System.out.println("\n***********INIZIO TEST testOrdiniDiUnaCategoria************\n");
+
+		Categoria categoria = new Categoria("Prodotti per la casa", "PRSTPLC");
+		Categoria categoria2 = new Categoria("Igene personale", "ignprsnl");
+
+		categoriaServiceIstance.inserisciNuovo(categoria);
+		categoriaServiceIstance.inserisciNuovo(categoria2);
+
+		Ordine ordine = new Ordine("Mario", "Via Roma 12", LocalDate.parse("2020-05-20"),
+				LocalDate.parse("2020-05-20"));
+
+		ordineServiceIstance.inserisciNuovo(ordine);
+
+		Articolo articolo = new Articolo("Pannolini", "ABZXC098760", 1200D, LocalDate.now());
+		Articolo articolo2 = new Articolo("Sapone", "ABZXC098760", 120D, LocalDate.now());
+
+		articoloServiceIstance.inserisciNuovo(articolo);
+		articoloServiceIstance.inserisciNuovo(articolo2);
+
+		if (categoria.getId() == null || categoria2.getId() == null || ordine.getId() == null
+				|| articolo.getId() == null || articolo2.getId() == null) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testOrdiniDiUnaCategoria: ordine o articolo o categoria non aggiunti**********\n");
+
+		}
+
+		categoriaServiceIstance.aggiungiArticoloACategoriaEsistente(categoria, articolo);
+		categoriaServiceIstance.aggiungiArticoloACategoriaEsistente(categoria2, articolo2);
+
+		List<Categoria> categorieDerivateDaMetodo = ordineServiceIstance.distinteCategorieDiUnOrdine(ordine);
+
+		if (categorieDerivateDaMetodo.size() < 2) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testOrdiniDiUnaCategoria: ritorno inaspettato**********\n");
+
+		}
+
+		System.out.println("\n***********FINE TEST testOrdiniDiUnaCategoria: PASSED************\n");
+
+	}
+
+	private static void testCaricaOrdinePiuRecenteDiUnaCategoria(CategoriaService categoriaServiceIstance,
+			ArticoloService articoloServiceIstance, OrdineService ordineServiceIstance) throws Exception {
+
+		System.out.println("\n***********INIZIO TEST testCaricaOrdinePiuRecenteDiUnaCategoria************\n");
+
+		Categoria categoria = new Categoria("Prodotti per la casa", "PRSTPLC");
+
+		categoriaServiceIstance.inserisciNuovo(categoria);
+
+		Ordine ordine = new Ordine("Mario", "Via Roma 12", LocalDate.parse("2020-05-20"),
+				LocalDate.parse("2020-05-20"));
+		Ordine ordine2 = new Ordine("Franco", "Via Roma 12", LocalDate.parse("2022-05-20"),
+				LocalDate.parse("2020-05-20"));
+
+		ordineServiceIstance.inserisciNuovo(ordine);
+		ordineServiceIstance.inserisciNuovo(ordine2);
+
+		Articolo articolo = new Articolo("Pannolini", "ABZXC098760", 1200D, LocalDate.now());
+		Articolo articolo2 = new Articolo("Sapone", "ABZXC098760", 120D, LocalDate.now());
+
+		articoloServiceIstance.inserisciNuovo(articolo);
+		articoloServiceIstance.inserisciNuovo(articolo2);
+
+		if (categoria.getId() == null || ordine.getId() == null || ordine2.getId() == null || articolo.getId() == null
+				|| articolo2.getId() == null) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testCaricaOrdinePiuRecenteDiUnaCategoria: ordine o articolo o categoria non aggiunti**********\n");
+
+		}
+
+		categoriaServiceIstance.aggiungiArticoloACategoriaEsistente(categoria, articolo);
+		categoriaServiceIstance.aggiungiArticoloACategoriaEsistente(categoria, articolo2);
+
+		Ordine ordinePiuRecenteDiCategoria = ordineServiceIstance.caricaOrdinePiuRecenteDiUnaCategoria(categoria);
+
+		System.out.println(ordinePiuRecenteDiCategoria.getNomeDestinatario());
+
+		if (!ordinePiuRecenteDiCategoria.getNomeDestinatario().equals("Franco")) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testCaricaOrdinePiuRecenteDiUnaCategoria: ritorno inaspettato**********\n");
+
+		}
+
+		System.out.println("\n***********FINE TEST testCaricaOrdinePiuRecenteDiUnaCategoria: PASSED************\n");
+
+	}
+
+	private static void testCaricaCodiciDiCategorieDiArtcioliDiOrdiniEffettuatiInMeseEAnno(
+			CategoriaService categoriaServiceIstance, ArticoloService articoloServiceIstance,
+			OrdineService ordineServiceIstance) throws Exception {
+
+		System.out.println(
+				"\n***********INIZIO TEST testCaricaCodiciDiCategorieDiArtcioliDiOrdiniEffettuatiInMeseEAnno************\n");
+
+		Categoria categoria = new Categoria("Prodotti per la casa", "PRSTPLC");
+		Categoria categoria2 = new Categoria("Giardinaggio", "GRDNGG");
+
+		categoriaServiceIstance.inserisciNuovo(categoria);
+		categoriaServiceIstance.inserisciNuovo(categoria2);
+
+		Ordine ordine = new Ordine("Franco", "Via Roma 12", LocalDate.parse("2022-05-20"),
+				LocalDate.parse("2020-05-20"));
+
+		ordineServiceIstance.inserisciNuovo(ordine);
+
+		Articolo articolo = new Articolo("Pannolini", "ABZXC098760", 1200D, LocalDate.now());
+		Articolo articolo2 = new Articolo("Sapone", "ABZXC098760", 120D, LocalDate.now());
+
+		articoloServiceIstance.inserisciNuovo(articolo);
+		articoloServiceIstance.inserisciNuovo(articolo2);
+
+		if (categoria.getId() == null || categoria2.getId() == null || ordine.getId() == null
+				|| articolo.getId() == null || articolo2.getId() == null) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testCaricaCodiciDiCategorieDiArtcioliDiOrdiniEffettuatiInMeseEAnno: ordine o articolo o categoria non aggiunti**********\n");
+
+		}
+
+		categoriaServiceIstance.aggiungiArticoloACategoriaEsistente(categoria, articolo);
+		categoriaServiceIstance.aggiungiArticoloACategoriaEsistente(categoria2, articolo2);
+
+		List<String> codiciTraDueDate = ordineServiceIstance
+				.caricaCodiciDiCategorieDiArtcioliDiOrdiniEffettuatiInMeseEAnno(5, 2022);
+
+		if (codiciTraDueDate.isEmpty()) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testCaricaCodiciDiCategorieDiArtcioliDiOrdiniEffettuatiInMeseEAnno: ritorno inaspettato**********\n");
+
+		}
+
+		System.out.println(
+				"\n***********FINE TEST testCaricaCodiciDiCategorieDiArtcioliDiOrdiniEffettuatiInMeseEAnno: PASSED************\n");
+
+	}
+
+	private static void testCaricaSommaPrezziDiUnDesinatario(CategoriaService categoriaServiceIstance,
+			ArticoloService articoloServiceIstance, OrdineService ordineServiceIstance) throws Exception {
+
+		System.out.println("\n***********INIZIO TEST testCaricaSommaPrezziDiUnDesinatario************\n");
+
+		Categoria categoria = new Categoria("Giardinaggio", "GRDNGG");
+
+		categoriaServiceIstance.inserisciNuovo(categoria);
+
+		String nomeDestinatario = "Franco" + new Date().getTime();
+
+		Ordine ordine = new Ordine(nomeDestinatario, "Via Roma 12", LocalDate.parse("2022-05-20"),
+				LocalDate.parse("2020-05-20"));
+		Ordine ordine2 = new Ordine(nomeDestinatario, "Via Roma 12", LocalDate.parse("2022-05-20"),
+				LocalDate.parse("2020-05-20"));
+
+		ordineServiceIstance.inserisciNuovo(ordine);
+		ordineServiceIstance.inserisciNuovo(ordine2);
+
+		Articolo articolo = new Articolo("Pannolini", "ABZXC098760", 1000D, LocalDate.now());
+		Articolo articolo2 = new Articolo("Sapone", "ABZXC098760", 100D, LocalDate.now());
+		Articolo articolo3 = new Articolo("Sapone", "ABZXC098760", 12.3D, LocalDate.now());
+
+		articoloServiceIstance.inserisciNuovo(articolo);
+		articoloServiceIstance.inserisciNuovo(articolo2);
+		articoloServiceIstance.inserisciNuovo(articolo3);
+
+		if (categoria.getId() == null || ordine.getId() == null || articolo.getId() == null) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testCaricaSommaPrezziDiUnDesinatario: ordine o articolo o categoria non aggiunti**********\n");
+
+		}
+
+		categoriaServiceIstance.aggiungiArticoloACategoriaEsistente(categoria, articolo);
+		categoriaServiceIstance.aggiungiArticoloACategoriaEsistente(categoria, articolo2);
+
+		Double ritornoAspettato = articolo.getPrezzoSingolo() + articolo2.getPrezzoSingolo()
+				+ articolo3.getPrezzoSingolo();
+		Double ritornoEffetivo = ordineServiceIstance.caricaSommaPrezziDiUnDesinatario(nomeDestinatario);
+
+		if (!ritornoEffetivo.equals(ritornoAspettato)) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testCaricaSommaPrezziDiUnDesinatario: ritorno inaspettato**********\n");
+
+		}
+
+		System.out.println("\n***********FINE TEST testCaricaSommaPrezziDiUnDesinatario: PASSED************\n");
+
+	}
+
+	private static void testListaDiIndirizziDiordiniAventiArticoliConSeriale(CategoriaService categoriaServiceIstance,
+			ArticoloService articoloServiceIstance, OrdineService ordineServiceIstance) throws Exception {
+
+		System.out
+				.println("\n***********INIZIO TEST testListaDiIndirizziDiordiniAventiArticoliConSeriale************\n");
+
+		Categoria categoria = new Categoria("Giardinaggio", "GRDNGG");
+
+		categoriaServiceIstance.inserisciNuovo(categoria);
+
+		String nomeDestinatario = "Franco" + new Date().getTime();
+
+		Ordine ordine = new Ordine(nomeDestinatario, "Via Roma 123", LocalDate.parse("2022-05-20"),
+				LocalDate.parse("2020-05-20"));
+		Ordine ordine2 = new Ordine(nomeDestinatario, "Via Milano 12", LocalDate.parse("2022-05-20"),
+				LocalDate.parse("2020-05-20"));
+
+		ordineServiceIstance.inserisciNuovo(ordine);
+		ordineServiceIstance.inserisciNuovo(ordine2);
+
+		String codiceTipo = "abc" + new Date().getTime();
+
+		Articolo articolo = new Articolo("Pannolini", codiceTipo, 1000D, LocalDate.now());
+		Articolo articolo2 = new Articolo("Sapone", codiceTipo, 100D, LocalDate.now());
+		Articolo articolo3 = new Articolo("Sapone", codiceTipo, 12.3D, LocalDate.now());
+
+		articoloServiceIstance.inserisciNuovo(articolo);
+		articoloServiceIstance.inserisciNuovo(articolo2);
+		articoloServiceIstance.inserisciNuovo(articolo3);
+
+		if (categoria.getId() == null || ordine.getId() == null || ordine2.getId() == null || articolo.getId() == null
+				|| articolo2.getId() == null || articolo3.getId() == null) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testListaDiIndirizziDiordiniAventiArticoliConSeriale: ordine o articolo o categoria non aggiunti**********\n");
+
+		}
+
+		categoriaServiceIstance.aggiungiArticoloACategoriaEsistente(categoria, articolo);
+		categoriaServiceIstance.aggiungiArticoloACategoriaEsistente(categoria, articolo2);
+
+		List<String> listaIndirizzi = ordineServiceIstance.listaDiIndirizziDiordiniAventiArticoliConSeriale(codiceTipo);
+
+		if (listaIndirizzi.size() != 2) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testListaDiIndirizziDiordiniAventiArticoliConSeriale: ritorno inaspettato**********\n");
+
+		}
+
+		System.out.println(
+				"\n***********FINE TEST testListaDiIndirizziDiordiniAventiArticoliConSeriale: PASSED************\n");
+
+	}
+
+	// *****************FINE TEST ORDINE****************************
+
+	// *****************INIZIO TEST ARTICOLO****************************
+
+	private static void testInsertArticolo(OrdineService ordineServiceIstance, ArticoloService articoloServiceIstance)
 			throws Exception {
-		System.out.println("------------- testRimuoviOrdine INIZIO -------------");
 
-		Ordine ordineDaInserire = new Ordine("Mario Rossi", "Via Mosca 52", LocalDate.of(2023, 04, 21),
-				LocalDate.of(2023, 06, 30));
-		ordineServiceInstance.inserisciNuovo(ordineDaInserire);
-		Long idOrdineDaInserire = ordineDaInserire.getId();
-		if (idOrdineDaInserire == null) {
-			throw new RuntimeException("testRimuoviOrdine FALLITO: Ordine non inserito.");
-		}
-		Articolo nuovoArticolo = new Articolo("Scarpe Nike", "12345678", 329D, LocalDate.now());
-		nuovoArticolo.setOrdine(ordineDaInserire);
-		articoloServiceInstance.inserisciNuovo(nuovoArticolo);
-		if (nuovoArticolo.getId() == null) {
-			throw new RuntimeException("testRimuoviOrdine FALLITO: Articolo non inserito");
-		}
-		if (!nuovoArticolo.getOrdine().getId().equals(idOrdineDaInserire)) {
-			throw new RuntimeException("testRimuoviOrdine FALLITO: L'ID dell'ordine non corrisponde");
+		System.out.println("\n***********INIZIO TEST testInsertArticolo************\n");
+
+		Ordine ordine = new Ordine("Mario", "Via Roma 12", LocalDate.parse("2020-05-20"),
+				LocalDate.parse("2020-05-20"));
+
+		Articolo articolo = new Articolo("Pannolini", "ABZXC098760", 1200D, LocalDate.now());
+
+		ordineServiceIstance.inserisciNuovo(ordine);
+		articoloServiceIstance.inserisciNuovo(articolo);
+		if (ordine.getId() == null || articolo.getId() == null) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testInsertArticolo: ordine o articolo non aggiunto**********\n");
+
 		}
 
+		articoloServiceIstance.rimuovi(articolo.getId());
 
-		Ordine ordineDaEliminare = new Ordine("Mario Rossi", "Via Mosca 52", LocalDate.of(2023, 04, 21),
-				LocalDate.of(2023, 06, 30));
-		ordineServiceInstance.inserisciNuovo(ordineDaEliminare);
-		Long idOrdineDaEliminare = ordineDaEliminare.getId();
-		if (idOrdineDaEliminare == null) {
-			throw new RuntimeException("testRimuoviOrdine FALLITO: Ordine non inserito.");
-		}
+		ordineServiceIstance.rimuovi(ordine.getId());
 
-		ordineServiceInstance.rimuovi(idOrdineDaEliminare);
-
-		System.out.println("------------- testRimuoviOrdine FINE -------------");
+		System.out.println("\n***********FINE TEST testInsertArticolo: PASSED************\n");
 
 	}
 
-
-	// ----------------------------------------------- METODI DEI TEST ARTICOLO
-	// -----------------------------------------------
-
-	// Metodo test inserimento nuovo articolo
-	private static void testInserimentoNuovoArticolo(OrdineService ordineServiceInstance,
-			ArticoloService articoloServiceInstance) throws Exception {
-		System.out.println("------------- testInserimentoNuovoArticolo INIZIO -------------");
-
-		Ordine ordineDaCollegare = new Ordine("Filippo Belli", "Via Prenestina 52", LocalDate.of(2023, 05, 19),
-				LocalDate.of(2023, 07, 30));
-		ordineServiceInstance.inserisciNuovo(ordineDaCollegare);
-		Long idOrdineDaCollegare = ordineDaCollegare.getId();
-		if (idOrdineDaCollegare == null) {
-			throw new RuntimeException("testInserimentoNuovoArticolo FALLITO: Ordine non inserito.");
-		}
-		Articolo nuovoArticolo = new Articolo("Scarpe Nike", "12345678", 329D, LocalDate.now());
-		nuovoArticolo.setOrdine(ordineDaCollegare);
-		articoloServiceInstance.inserisciNuovo(nuovoArticolo);
-		if (nuovoArticolo.getId() == null) {
-			throw new RuntimeException("testInserimentoNuovoArticolo FALLITO: Articolo non inserito");
-		}
-		if (!nuovoArticolo.getOrdine().getId().equals(idOrdineDaCollegare)) {
-			throw new RuntimeException("testInserimentoNuovoArticolo FALLITO: L'ID dell'ordine non corrisponde");
-		}
-		System.out.println("------------- testInserimentoNuovoArticolo FINE -------------");
-
-	}
-
-	// Metodo test aggiornamento articolo esistente
-	private static void testAggiornamentoArticoloEsistente(ArticoloService articoloServiceInstance) throws Exception {
-		System.out.println("------------- testAggiornamentoArticoloEsistente INIZIO -------------");
-
-		List<Articolo> listaArticoliPresenti = articoloServiceInstance.listAll();
-		if (listaArticoliPresenti.size() < 1) {
-			throw new RuntimeException("testAggiornamentoArticoloEsistente FALLITO: non sono presenti voci nel DB.");
-		}
-
-		Articolo articoloDaAggiornare = listaArticoliPresenti.get(0);
-		System.out.println("Prima dell'aggiornamento: " + articoloDaAggiornare);
-		String nuovaDescrizione = "Portatile MacBook";
-		articoloDaAggiornare.setDescrizione(nuovaDescrizione);
-		articoloServiceInstance.aggiorna(articoloDaAggiornare);
-
-		Articolo articoloReloaded = articoloServiceInstance.caricaSingoloElemento(articoloDaAggiornare.getId());
-		if (articoloReloaded.getId() != articoloDaAggiornare.getId()) {
-			throw new RuntimeException("testAggiornamentoArticoloEsistente FALLITO: update non avvenuto.");
-		}
-		System.out.println("Dopo l'aggiornamento: " + articoloReloaded);
-		System.out.println("------------- testAggiornamentoArticoloEsistente FINE -------------");
-
-	}
-
-	// Metodo rimozione di un articolo legato ad un ordine
-	public static void testRimozioneArticoloDaOrdine(ArticoloService articoloServiceInstance,
-			OrdineService ordineServiceInstance) throws Exception {
-		System.out.println("------------- testRimozioneArticoloDaOrdine INIZIO -------------");
-
-		List<Ordine> listaOrdiniPresenti = ordineServiceInstance.listAll();
-		if (listaOrdiniPresenti.size() < 1) {
-			throw new RuntimeException("testRimozioneArticoloDaOrdine FALLITO: non sono presenti voci nel DB.");
-		}
-
-		Ordine ordineDaCollegare = listaOrdiniPresenti.get(0);
-		Long idOrdineDaCollegare = ordineDaCollegare.getId();
-		Articolo nuovoArticolo = new Articolo("Libro", "12345678", 329D, LocalDate.now());
-		nuovoArticolo.setOrdine(ordineDaCollegare);
-		articoloServiceInstance.inserisciNuovo(nuovoArticolo);
-		if (nuovoArticolo.getId() == null) {
-			throw new RuntimeException("testRimozioneArticoloDaOrdine FALLITO: Articolo non inserito");
-		}
-		if (!nuovoArticolo.getOrdine().getId().equals(idOrdineDaCollegare)) {
-			throw new RuntimeException("testRimozioneArticoloDaOrdine FALLITO: L'ID dell'ordine non corrisponde");
-		}
-
-		Long idArticoloDaEliminare = nuovoArticolo.getId();
-		articoloServiceInstance.rimuovi(idArticoloDaEliminare);
-		Articolo articoloSupposedToBeRemoved = articoloServiceInstance.caricaSingoloElemento(idArticoloDaEliminare);
-		if (articoloSupposedToBeRemoved != null) {
-			throw new RuntimeException("testRimozioneArticoloDaOrdine FALLITO: articolo non rimosso");
-		}
-		System.out.println("------------- testRimozioneArticoloDaOrdine FINE -------------");
-
-	}
-
-	// Metodo aggiungi articolo a categoria
-	public static void testAggiungiArticoloACategoria(ArticoloService articoloServiceInstance,
-			CategoriaService categoriaServiceInstance, OrdineService ordineServiceInstance) throws Exception {
-		System.out.println("------------- testAggiungiArticoloACategoria INIZIO -------------");
-
-		Categoria nuovaCategoria = new Categoria("Elettronica", "101");
-		categoriaServiceInstance.inserisciNuovo(nuovaCategoria);
-		if (nuovaCategoria.getId() == null) {
-			throw new RuntimeException("testAggiungiArticoloACategoria FALLITO: Ordine non inserito.");
-		}
-
-		Ordine nuovoOrdine = new Ordine("Luca De Luca", "Via Casilina 52", LocalDate.of(2023, 5, 31),
-				LocalDate.of(2023, 8, 30));
-		ordineServiceInstance.inserisciNuovo(nuovoOrdine);
-		if (nuovoOrdine.getId() == null) {
-			throw new RuntimeException("testAggiungiArticoloACategoria FALLITO: Ordine non inserito.");
-		}
-
-		Articolo nuovoArticolo = new Articolo("Scarpe Nike", "0001", 299D, LocalDate.now());
-		nuovoArticolo.setOrdine(nuovoOrdine);
-		articoloServiceInstance.inserisciNuovo(nuovoArticolo);
-		if (nuovoArticolo.getId() == null) {
-			throw new RuntimeException("testAggiungiArticoloACategoria FALLITO: Ordine non inserito.");
-		}
-
-		categoriaServiceInstance.aggiungiArticolo(nuovaCategoria, nuovoArticolo);
-
-	}
-
-	// Metodo rimozione completa di articolo
-	public static void testRimozioneArticoloCompleta(ArticoloService articoloServiceInstance,
-			CategoriaService categoriaServiceInstance, OrdineService ordineServiceInstance) throws Exception {
-		System.out.println("------------- testRimozioneArticoloCompleta INIZIO -------------");
-		Categoria nuovaCategoria1 = new Categoria("Abbigliamento", "201");
-		Categoria nuovaCategoria2 = new Categoria("Informatica", "202");
-		categoriaServiceInstance.inserisciNuovo(nuovaCategoria1);
-		categoriaServiceInstance.inserisciNuovo(nuovaCategoria2);
-		if (nuovaCategoria1.getId() == null) {
-			throw new RuntimeException("testRimozioneArticoloCompleta FALLITO: categoria non inserita.");
-		}
-		if (nuovaCategoria2.getId() == null) {
-			throw new RuntimeException("testRimozioneArticoloCompleta FALLITO: categoria non inserita.");
-		}
-
-		Ordine nuovoOrdine = new Ordine("Luca De Luca", "Via Casilina 52", LocalDate.of(2023, 5, 31),
-				LocalDate.of(2023, 8, 30));
-		ordineServiceInstance.inserisciNuovo(nuovoOrdine);
-		if (nuovoOrdine.getId() == null) {
-			throw new RuntimeException("testRimozioneArticoloCompleta FALLITO: ordine non inserito");
-		}
-
-		Articolo nuovoArticolo = new Articolo("Scarpe Nike", "0001", 299D, LocalDate.now());
-		nuovoArticolo.setOrdine(nuovoOrdine);
-		articoloServiceInstance.inserisciNuovo(nuovoArticolo);
-		if (nuovoArticolo.getId() == null) {
-			throw new RuntimeException("testRimozioneArticoloCompleta FALLITO: articolo non inserito.");
-		}
-
-		articoloServiceInstance.aggiungiCategoria(nuovoArticolo, nuovaCategoria1);
-		articoloServiceInstance.aggiungiCategoria(nuovoArticolo, nuovaCategoria2);
-
-		Articolo articoloDaRimuovere = articoloServiceInstance.caricaArticoloEager(nuovoArticolo.getId());
-		if (articoloDaRimuovere.getId() == null) {
-			throw new RuntimeException("testRimozioneArticoloCompleta FALLITO: Ordine non inserito.");
-		}
-		if (articoloDaRimuovere.getCategorie().isEmpty()) {
-			throw new RuntimeException("testRimozioneArticoloCompleta FALLITO: categoria non associata ad articolo");
-		}
-		articoloServiceInstance.rimozioneCompletaArticolo(articoloDaRimuovere.getId());
-
-		System.out.println("------------- testRimozioneArticoloCompleta FINE -------------");
-
-	}
-
-	// ----------------------------------------------- METODI DEI TEST CATEGORIA
-	// -----------------------------------------------
-
-	// Metodo inserimento nuova categoria
-	private static void testInserimentoNuovaCategoria(CategoriaService categoriaServiceInstance) throws Exception {
-		System.out.println("------------- testInserimentoNuovaCategoria INIZIO -------------");
-
-		Categoria categoriaDaInserire = new Categoria("Abbigliamento", "001");
-		categoriaServiceInstance.inserisciNuovo(categoriaDaInserire);
-		if (categoriaDaInserire.getId() == null) {
-			throw new RuntimeException("testInserimentoNuovaCategoria FALLITO: Ordine non inserito.");
-		}
-		System.out.println("------------- testInserimentoNuovaCategoria FINE -------------");
-	}
-
-	// Metodo aggiornamento categoria esistente
-	private static void testAggiornamentoCategoriaEsistente(CategoriaService categoriaServiceInstance)
+	private static void testUpdateArticolo(OrdineService ordineServiceIstance, ArticoloService articoloServiceIstance)
 			throws Exception {
-		System.out.println("------------- testAggiornamentoCategoriaEsistente INIZIO -------------");
 
-		List<Categoria> listaCategoriePresenti = categoriaServiceInstance.listAll();
-		if (listaCategoriePresenti.size() < 1) {
-			throw new RuntimeException("testAggiornamentoCategoriaEsistente FALLITO: non sono presenti voci nel DB.");
+		System.out.println("\n***********INIZIO TEST testUpdateArticolo************\n");
+
+		Ordine ordine = new Ordine("Mario", "Via Roma 12", LocalDate.parse("2020-05-20"),
+				LocalDate.parse("2020-05-20"));
+
+		Articolo articolo = new Articolo("Pannolini", "ABZXC098760", 1200D, LocalDate.now());
+
+		ordineServiceIstance.inserisciNuovo(ordine);
+		articoloServiceIstance.inserisciNuovo(articolo);
+		if (ordine.getId() == null || articolo.getId() == null) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testUpdateArticolo: ordine o articolo non aggiunto**********\n");
+
 		}
 
-		Categoria categoriaDaAggiornare = listaCategoriePresenti.get(0);
-		System.out.println("Prima dell'aggiornamento: " + categoriaDaAggiornare);
-		String nuovaDescrizione = "Informatica";
-		categoriaDaAggiornare.setDescrizione(nuovaDescrizione);
-		categoriaServiceInstance.aggiorna(categoriaDaAggiornare);
+		String descriptionArticolo = articolo.getDescrizione();
 
-		Categoria categoriaReloaded = categoriaServiceInstance.caricaSingoloElemento(categoriaDaAggiornare.getId());
-		if (categoriaReloaded.getId() != categoriaDaAggiornare.getId()) {
-			throw new RuntimeException("testAggiornamentoCategoriaEsistente FALLITO: update non avvenuto.");
+		articolo.setDescrizione("Giocattoli");
+
+		articoloServiceIstance.aggiorna(articolo);
+
+		Articolo articoloReload = articoloServiceIstance.caricaSingoloElemento(articolo.getId());
+
+		String descriptionArticoloNew = articoloReload.getDescrizione();
+
+		if (descriptionArticoloNew.equals(descriptionArticolo)) {
+
+			throw new RuntimeException(
+					"\n****************TEST FAILED testUpdateArticolo: articolo non aggiornato**********\n");
+
 		}
-		System.out.println("Dopo l'aggiornamento: " + categoriaReloaded);
-		System.out.println("------------- testAggiornamentoCategoriaEsistente FINE -------------");
+
+		articoloServiceIstance.rimuovi(articolo.getId()); // Rimozione di un articolo legato ad un ordine (non a delle
+															// categorie)----fatto
+
+		ordineServiceIstance.rimuovi(ordine.getId());
+
+		System.out.println("\n***********FINE TEST testUpdateArticolo: PASSED************\n");
 
 	}
 
-	// Metodo aggiunta categoria ad un articolo
-	public static void testAggiungiCategoriaAdArticolo(ArticoloService articoloServiceInstance,
-			CategoriaService categoriaServiceInstance, OrdineService ordineServiceInstance) throws Exception {
-		System.out.println("------------- aggiungiCategoriaAdArticolo INIZIO -------------");
+	private static void testAggiungiCategoriaAAritcoloEsistente(CategoriaService categoriaServiceIstance,
+			ArticoloService articoloServiceIstance, OrdineService ordineServiceIstance) throws Exception {
 
-		Categoria nuovaCategoria = new Categoria("Cultura", "413");
-		categoriaServiceInstance.inserisciNuovo(nuovaCategoria);
-		if (nuovaCategoria.getId() == null) {
-			throw new RuntimeException("testAssociaCategoriaAdArticolo FALLITO: Ordine non inserito.");
+		System.out.println("\n***********INIZIO TEST testAggiungiCategoriaAAritcoloEsistente************\n");
+
+		Categoria categoria = new Categoria("Prodotti per la casa", "PRSTPLC");
+
+		categoriaServiceIstance.inserisciNuovo(categoria);
+
+		Ordine ordine = new Ordine("Mario", "Via Roma 12", LocalDate.parse("2020-05-20"),
+				LocalDate.parse("2020-05-20"));
+
+		ordineServiceIstance.inserisciNuovo(ordine);
+
+		Articolo articolo = new Articolo("Pannolini", "ABZXC098760", 1200D, LocalDate.now());
+
+		articoloServiceIstance.inserisciNuovo(articolo);
+
+		if (categoria.getId() == null || ordine.getId() == null || articolo.getId() == null) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testAggiungiCategoriaAAritcoloEsistente: ordine o articolo o categoria non aggiunti**********\n");
+
 		}
 
-		Ordine nuovoOrdine = new Ordine("Luca De Luca", "Via Casilina 52", LocalDate.of(2023, 5, 31),
-				LocalDate.of(2023, 8, 30));
-		ordineServiceInstance.inserisciNuovo(nuovoOrdine);
-		if (nuovoOrdine.getId() == null) {
-			throw new RuntimeException("testAssociaCategoriaAdArticolo FALLITO: Ordine non inserito.");
+		articoloServiceIstance.aggiungiCategoriaAArticoloEsistente(categoria, articolo);
+
+		Articolo articoloReload = articoloServiceIstance.caricaSingoloElementoConCategorie(articolo.getId());
+
+		if (articoloReload.getCategorie().isEmpty()) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testAggiungiCategoriaAAritcoloEsistente: ordine o articolo o categoria non aggiunti**********\n");
+
 		}
 
-		Articolo nuovoArticolo = new Articolo("Scarpe Nike", "0001", 299D, LocalDate.now());
-		nuovoArticolo.setOrdine(nuovoOrdine);
-		articoloServiceInstance.inserisciNuovo(nuovoArticolo);
-		if (nuovoArticolo.getId() == null) {
-			throw new RuntimeException("testAssociaCategoriaAdArticolo FALLITO: Ordine non inserito.");
-		}
+		System.out.println("\n***********FINE TEST testAggiungiCategoriaAAritcoloEsistente: PASSED************\n");
 
-		articoloServiceInstance.aggiungiCategoria(nuovoArticolo, nuovaCategoria);
-		Articolo articoloReloaded = articoloServiceInstance.caricaArticoloEager(nuovoArticolo.getId());
-		if (articoloReloaded.getCategorie().isEmpty()) {
-			throw new RuntimeException("testAssociaCategoriaAdArticolo FALLITO: articolo non associato a categoria");
-		}
-
-		System.out.println("------------- testAssociaCategoriaAdArticolo FINE -------------");
 	}
 
-	// Metodo rimozione completa categoria
-	public static void testRimozioneCategoriaCompleta(ArticoloService articoloServiceInstance,
-			CategoriaService categoriaServiceInstance, OrdineService ordineServiceInstance) throws Exception {
-		System.out.println("------------- testRimozioneCategoriaCompleta INIZIO -------------");
-		Categoria nuovaCategoria = new Categoria("Arte", "443");
-		categoriaServiceInstance.inserisciNuovo(nuovaCategoria);
-		if (nuovaCategoria.getId() == null) {
-			throw new RuntimeException("testRimozioneCategoriaCompleta FALLITO: Ordine non inserito.");
+	private static void testRimuoviArticoloPrevioScollegamento(CategoriaService categoriaServiceIstance,
+			ArticoloService articoloServiceIstance, OrdineService ordineServiceIstance) throws Exception {
+
+		System.out.println("\n***********INIZIO TEST testRimuoviArticoloPrevioScollegamento************\n");
+
+		Categoria categoria = new Categoria("Prodotti per la casa", "PRSTPLC");
+
+		categoriaServiceIstance.inserisciNuovo(categoria);
+
+		Ordine ordine = new Ordine("Mario", "Via Roma 12", LocalDate.parse("2020-05-20"),
+				LocalDate.parse("2020-05-20"));
+
+		ordineServiceIstance.inserisciNuovo(ordine);
+
+		Articolo articolo = new Articolo("Pannolini", "ABZXC098760", 1200D, LocalDate.now());
+
+		articoloServiceIstance.inserisciNuovo(articolo);
+
+		if (categoria.getId() == null || ordine.getId() == null || articolo.getId() == null) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testRimuoviArticoloPrevioScollegamento: ordine o articolo o categoria non aggiunti**********\n");
+
 		}
 
-		Ordine nuovoOrdine = new Ordine("Alberto Rossi", "Via Appia 52", LocalDate.of(2002, 5, 25),
-				LocalDate.of(2023, 8, 30));
-		ordineServiceInstance.inserisciNuovo(nuovoOrdine);
-		if (nuovoOrdine.getId() == null) {
-			throw new RuntimeException("testRimozioneCategoriaCompleta FALLITO: Ordine non inserito.");
+		articoloServiceIstance.aggiungiCategoriaAArticoloEsistente(categoria, articolo);
+
+		articoloServiceIstance.rimuoviArticoloPrevioScollegamento(articolo.getId());
+
+		if (articoloServiceIstance.caricaSingoloElemento(articolo.getId()) != null) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testRimuoviArticoloPrevioScollegamento: articolo non eliminato**********\n");
+
 		}
 
-		Articolo nuovoArticolo1 = new Articolo("Quadro", "0010", 299D, LocalDate.now());
-		Articolo nuovoArticolo2 = new Articolo("Dipinto", "0011", 299D, LocalDate.now());
-		nuovoArticolo1.setOrdine(nuovoOrdine);
-		articoloServiceInstance.inserisciNuovo(nuovoArticolo1);
-		if (nuovoArticolo1.getId() == null) {
-			throw new RuntimeException("testRimozioneCategoriaCompleta FALLITO: articolo non inserito.");
-		}
-		nuovoArticolo2.setOrdine(nuovoOrdine);
-		articoloServiceInstance.inserisciNuovo(nuovoArticolo2);
-		if (nuovoArticolo2.getId() == null) {
-			throw new RuntimeException("testRimozioneCategoriaCompleta FALLITO: articolo non inserito.");
-		}
+		System.out.println("\n***********FINE TEST testRimuoviArticoloPrevioScollegamento: PASSED************\n");
+		ordineServiceIstance.rimuovi(ordine.getId());
+		categoriaServiceIstance.rimuovi(categoria.getId());
 
-		categoriaServiceInstance.aggiungiArticolo(nuovaCategoria, nuovoArticolo1);
-		categoriaServiceInstance.aggiungiArticolo(nuovaCategoria, nuovoArticolo2);
-		Categoria categoriaReloaded = categoriaServiceInstance.caricaCategoriaEager(nuovaCategoria.getId());
-		if (categoriaReloaded.getArticoli().isEmpty()) {
-			throw new RuntimeException("testRimozioneCategoriaCompleta FALLITO: articolo non associato a categoria");
-		}
-
-		categoriaServiceInstance.rimozioneCategoriaCompleta(categoriaReloaded.getId());
-
-		System.out.println("------------- testRimozioneCategoriaCompleta FINE -------------");
 	}
 
+	private static void testOttieniSommaPrezziDiArticoliDiUnaCategoria(CategoriaService categoriaServiceIstance,
+			ArticoloService articoloServiceIstance, OrdineService ordineServiceIstance) throws Exception {
+
+		System.out.println("\n***********INIZIO TEST testOttieniSommaPrezziDiArticoliDiUnaCategoria************\n");
+
+		Categoria categoria = new Categoria("Prodotti per la casa", "PRSTPLC");
+
+		categoriaServiceIstance.inserisciNuovo(categoria);
+
+		Ordine ordine = new Ordine("Mario", "Via Roma 12", LocalDate.parse("2020-05-20"),
+				LocalDate.parse("2020-05-20"));
+
+		ordineServiceIstance.inserisciNuovo(ordine);
+
+		Articolo articolo = new Articolo("Pannolini", "ABZXC098760", 12000D, LocalDate.now());
+		Articolo articolo2 = new Articolo("Sapone", "ABZXC098760", 120D, LocalDate.now());
+
+		articoloServiceIstance.inserisciNuovo(articolo);
+		articoloServiceIstance.inserisciNuovo(articolo2);
+
+		if (categoria.getId() == null || ordine.getId() == null || articolo.getId() == null
+				|| articolo2.getId() == null) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testOttieniSommaPrezziDiArticoliDiUnaCategoria: ordine o articolo o categoria non aggiunti**********\n");
+
+		}
+
+		categoriaServiceIstance.aggiungiArticoloACategoriaEsistente(categoria, articolo);
+		categoriaServiceIstance.aggiungiArticoloACategoriaEsistente(categoria, articolo2);
+
+		Double ritornoAtteso = articolo.getPrezzoSingolo() + articolo2.getPrezzoSingolo();
+
+		Double totalePrezziDiUnaCategoria = articoloServiceIstance
+				.ottieniSommaPrezziDiArticoliDiUnaCategoria(categoria);
+
+		if (!totalePrezziDiUnaCategoria.equals(ritornoAtteso)) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testOttieniSommaPrezziDiArticoliDiUnaCategoria: ritorno inaspettato**********\n");
+
+		}
+
+		System.out
+				.println("\n***********FINE TEST testOttieniSommaPrezziDiArticoliDiUnaCategoria: PASSED************\n");
+
+	}
+
+	private static void testGetArticoliConErroriDOrdine(CategoriaService categoriaServiceIstance,
+			ArticoloService articoloServiceIstance, OrdineService ordineServiceIstance) throws Exception {
+
+		System.out.println("\n***********INIZIO TEST testGetArticoliConErroriDOrdine************\n");
+
+		Categoria categoria = new Categoria("Prodotti per la casa", "PRSTPLC");
+
+		categoriaServiceIstance.inserisciNuovo(categoria);
+
+		Ordine ordine = new Ordine("Mario" + new Date().getTime(), "Via Roma 12", LocalDate.parse("2024-05-20"),
+				LocalDate.parse("2020-05-20"));
+		Ordine ordine2 = new Ordine("Mario" + new Date().getTime(), "Via Roma 12", LocalDate.parse("2024-05-20"),
+				LocalDate.parse("2020-05-20"));
+
+		ordineServiceIstance.inserisciNuovo(ordine);
+		ordineServiceIstance.inserisciNuovo(ordine2);
+
+		Articolo articolo = new Articolo("Pannolini", "ABZXC098760", 12000D, LocalDate.now());
+		Articolo articolo2 = new Articolo("Sapone", "ABZXC098760", 120D, LocalDate.now());
+
+		articoloServiceIstance.inserisciNuovo(articolo);
+		articoloServiceIstance.inserisciNuovo(articolo2);
+
+		if (categoria.getId() == null || ordine.getId() == null || ordine2.getId() == null || articolo.getId() == null
+				|| articolo2.getId() == null) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testGetArticoliConErroriDOrdine: ordine o articolo o categoria non aggiunti**********\n");
+
+		}
+
+		categoriaServiceIstance.aggiungiArticoloACategoriaEsistente(categoria, articolo);
+		categoriaServiceIstance.aggiungiArticoloACategoriaEsistente(categoria, articolo2);
+
+		List<Articolo> articoliConOrdineStrano = articoloServiceIstance.getArticoliConErroriDOrdine();
+
+		if (articoliConOrdineStrano.size() < 2) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testGetArticoliConErroriDOrdine: ritorno inaspettato**********\n");
+
+		}
+
+		System.out.println("\n***********FINE TEST testGetArticoliConErroriDOrdine: PASSED************\n");
+
+	}
+
+	// *****************FINE TEST ARTICOLO****************************
+
+	// *****************INIZIO TEST CATEGORIA****************************
+
+	private static void testInsertCategoria(CategoriaService categoriaServiceIstance) throws Exception {
+
+		System.out.println("\n***********INIZIO TEST testInsertCategoria************\n");
+
+		Categoria categoria = new Categoria("Prodotti per la casa", "PRSTPLC");
+
+		categoriaServiceIstance.inserisciNuovo(categoria);
+		if (categoria.getId() == null) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testInsertCategoria: ordine o articolo non aggiunto**********\n");
+
+		}
+
+		categoriaServiceIstance.rimuovi(categoria.getId());
+
+		System.out.println("\n***********FINE TEST testInsertCategoria: PASSED************\n");
+
+	}
+
+	private static void testUpdateCategoria(CategoriaService categoriaServiceIstance) throws Exception {
+
+		System.out.println("\n***********INIZIO TEST testUpdateCategoria************\n");
+
+		Categoria categoria = new Categoria("Prodotti per la casa", "PRSTPLC");
+
+		categoriaServiceIstance.inserisciNuovo(categoria);
+		if (categoria.getId() == null) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testUpdateCategoria: ordine o articolo non aggiunto**********\n");
+
+		}
+
+		String descrizione = categoria.getDescrizione();
+
+		categoria.setDescrizione("Cura della persona");
+
+		categoriaServiceIstance.aggiorna(categoria);
+
+		Categoria categoriaReload = categoriaServiceIstance.caricaSingoloElemento(categoria.getId());
+
+		String descrizioneNew = categoriaReload.getDescrizione();
+
+		if (descrizioneNew.equals(descrizione)) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testUpdateCategoria: categoria non aggiornata**********\n");
+
+		}
+
+		categoriaServiceIstance.rimuovi(categoria.getId());
+
+		System.out.println("\n***********FINE TEST testUpdateCategoria: PASSED************\n");
+
+	}
+
+	private static void testAggiungiArticoloACategoriaEsistente(CategoriaService categoriaServiceIstance,
+			ArticoloService articoloServiceIstance, OrdineService ordineServiceIstance) throws Exception {
+
+		System.out.println("\n***********INIZIO TEST testAggiungiArticoloACategoriaEsistente************\n");
+
+		Categoria categoria = new Categoria("Prodotti per la casa", "PRSTPLC");
+
+		categoriaServiceIstance.inserisciNuovo(categoria);
+
+		Ordine ordine = new Ordine("Mario", "Via Roma 12", LocalDate.parse("2020-05-20"),
+				LocalDate.parse("2020-05-20"));
+
+		ordineServiceIstance.inserisciNuovo(ordine);
+
+		Articolo articolo = new Articolo("Pannolini", "ABZXC098760", 1200D, LocalDate.now());
+
+		articoloServiceIstance.inserisciNuovo(articolo);
+
+		if (categoria.getId() == null || ordine.getId() == null || articolo.getId() == null) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testAggiungiArticoloACategoriaEsistente: ordine o articolo o categoria non aggiunti**********\n");
+
+		}
+
+		categoriaServiceIstance.aggiungiArticoloACategoriaEsistente(categoria, articolo);
+
+		Categoria categoriaReload = categoriaServiceIstance.caricaSingoloElemento(categoria.getId());
+
+		if (categoriaReload.getArticoli().isEmpty()) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testAggiungiArticoloACategoriaEsistente: ordine o articolo o categoria non aggiunti**********\n");
+
+		}
+
+		System.out.println("\n***********FINE TEST testAggiungiArticoloACategoriaEsistente: PASSED************\n");
+
+	}
+
+	private static void testRimuoviCategoriaPrevioScollegamento(CategoriaService categoriaServiceIstance,
+			ArticoloService articoloServiceIstance, OrdineService ordineServiceIstance) throws Exception {
+
+		System.out.println("\n***********INIZIO TEST testRimuoviCategoriaPrevioScollegamento************\n");
+
+		Categoria categoria = new Categoria("Prodotti per la casa", "PRSTPLC");
+
+		categoriaServiceIstance.inserisciNuovo(categoria);
+
+		Ordine ordine = new Ordine("Mario", "Via Roma 12", LocalDate.parse("2020-05-20"),
+				LocalDate.parse("2020-05-20"));
+
+		ordineServiceIstance.inserisciNuovo(ordine);
+
+		Articolo articolo = new Articolo("Pannolini", "ABZXC098760", 1200D, LocalDate.now());
+
+		articoloServiceIstance.inserisciNuovo(articolo);
+
+		if (categoria.getId() == null || ordine.getId() == null || articolo.getId() == null) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testRimuoviCategoriaPrevioScollegamento: ordine o articolo o categoria non aggiunti**********\n");
+
+		}
+
+		articoloServiceIstance.aggiungiCategoriaAArticoloEsistente(categoria, articolo);
+
+		categoriaServiceIstance.rimuoviCategoriaPrevioScollegamento(categoria.getId());
+
+		if (categoriaServiceIstance.caricaSingoloElemento(categoria.getId()) != null) {
+			throw new RuntimeException(
+					"\n****************TEST FAILED testRimuoviCategoriaPrevioScollegamento: articolo non eliminato**********\n");
+
+		}
+
+		System.out.println("\n***********FINE TEST testRimuoviCategoriaPrevioScollegamento: PASSED************\n");
+
+		articoloServiceIstance.rimuovi(articolo.getId());
+		ordineServiceIstance.rimuovi(ordine.getId());// test rimuovi ordine e creata eccezione nel caso in cui ci siano
+														// articoli
+	}
+
+	// *****************FINE TEST CATEGORIA****************************
 }

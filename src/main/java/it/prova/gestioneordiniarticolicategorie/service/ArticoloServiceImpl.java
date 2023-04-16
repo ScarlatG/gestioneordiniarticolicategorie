@@ -269,4 +269,105 @@ public class ArticoloServiceImpl implements ArticoloService {
 		}
 	}
 
+	@Override
+	public void aggiungiCategoriaAArticoloEsistente(Categoria categoria, Articolo articolo) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		try {
+
+			articoloDAO.setEntityManager(entityManager);
+			entityManager.getTransaction().begin();
+			categoria = entityManager.merge(categoria);
+			articolo = entityManager.merge(articolo);
+			articolo.addToCategorie(categoria);
+//			categoria.getArticoli().add(articolo);
+			entityManager.getTransaction().commit();
+
+		} catch (Exception e) {
+
+			entityManager.getTransaction().rollback();
+			e.printStackTrace();
+			throw e;
+
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
+
+	}
+
+	@Override
+	public Articolo caricaSingoloElementoConCategorie(Long id) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		try {
+
+			articoloDAO.setEntityManager(entityManager);
+
+			return articoloDAO.findByIdFetchEagher(id);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+
+		}
+	}
+
+	@Override
+	public void rimuoviArticoloPrevioScollegamento(Long id) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		try {
+			entityManager.getTransaction().begin();
+			articoloDAO.setEntityManager(entityManager);
+			articoloDAO.deleteByIdPostScollegamento(id);
+			entityManager.getTransaction().commit();
+		} catch (Exception e) {
+			entityManager.getTransaction().rollback();
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
+	}
+
+	@Override
+	public Double ottieniSommaPrezziDiArticoliDiUnaCategoria(Categoria categoria) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		try {
+
+			articoloDAO.setEntityManager(entityManager);
+
+			return articoloDAO.getSommaPrezziDiUnaCategoria(categoria.getId());
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+
+		}
+	}
+
+	@Override
+	public List<Articolo> getArticoliConErroriDOrdine() throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		try {
+
+			articoloDAO.setEntityManager(entityManager);
+
+			return articoloDAO.articoliStrani();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+
+		}
+	}
+
 }

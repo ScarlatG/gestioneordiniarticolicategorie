@@ -23,4 +23,14 @@ public interface ArticoloDAO extends IBaseDAO<Articolo> {
 
 	public List<Articolo> findArticoliPerNumeroSeriale(String numeroSeriale) throws Exception;
 
+	public List<String> findCategoriePerOrdine(Long idOrdine) throws Exception;
+
+	public Articolo findByIdFetchEagher(Long id) throws Exception;
+
+	public void deleteByIdPostScollegamento(Long id) throws Exception;
+
+	public Double getSommaPrezziDiUnaCategoria(Long id) throws Exception;
+
+	public List<Articolo> articoliStrani() throws Exception;
+
 }

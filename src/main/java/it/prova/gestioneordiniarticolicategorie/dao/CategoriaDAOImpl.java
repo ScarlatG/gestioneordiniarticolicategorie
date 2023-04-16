@@ -101,4 +101,20 @@ public class CategoriaDAOImpl implements CategoriaDAO {
 		return query.getSingleResult();
 	}
 
+	@Override
+	public Categoria findByIdFetchEagher(Long id) throws Exception {
+		TypedQuery<Categoria> query = entityManager.createQuery(
+				"select u FROM Categoria u left join fetch u.articoli r where u.id = :idCategoria", Categoria.class);
+		query.setParameter("idCategoria", id);
+		return query.getResultList().stream().findFirst().orElse(null);
+	}
+
+	@Override
+	public void deleteByIdPostScollegamento(Long id) throws Exception {
+		entityManager.createNativeQuery("delete from articolo_categoria a where a.categoria_id = ?1")
+				.setParameter(1, id).executeUpdate();
+		entityManager.createNativeQuery("delete from categoria a where a.id = ?1").setParameter(1, id).executeUpdate();
+
+	}
+
 }
